@@ -1,0 +1,861 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>BioGlass</title>
+  <meta name="color-scheme" content="dark" />
+
+  <style>
+    :root{
+      --bg0:#05060a;
+      --bg1:#070a12;
+      --glass: rgba(255,255,255,.06);
+      --glass2: rgba(255,255,255,.10);
+      --stroke: rgba(255,255,255,.14);
+      --stroke2: rgba(255,255,255,.20);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.66);
+      --muted2: rgba(255,255,255,.52);
+      --ok: rgba(120,255,210,.9);
+      --err: rgba(255,120,140,.9);
+      --shadow: 0 20px 60px rgba(0,0,0,.55);
+      --blur: 18px;
+      --r: 18px;
+      --r2: 26px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+    }
+
+    *{ box-sizing:border-box; }
+    html, body{ height:100%; }
+    body{
+      margin:0;
+      font-family: var(--sans);
+      color: var(--text);
+      background:
+        radial-gradient(1200px 800px at 10% 10%, rgba(120,140,255,.20), transparent 55%),
+        radial-gradient(900px 700px at 90% 20%, rgba(140,255,220,.12), transparent 55%),
+        radial-gradient(900px 700px at 50% 110%, rgba(255,160,220,.10), transparent 55%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      overflow-x:hidden;
+    }
+
+    .noise{
+      position:fixed; inset:0;
+      pointer-events:none;
+      opacity:.08;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.7'/%3E%3C/svg%3E");
+      mix-blend-mode:overlay;
+    }
+
+    /* Центрирование основного блока */
+    .wrap{
+      min-height: 100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px 16px;
+    }
+
+    .grid{
+      width: min(980px, 100%);
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:16px;
+      margin-top:0;
+    }
+
+    .card{
+      border-radius: var(--r2);
+      background:
+        radial-gradient(500px 240px at 20% 0%, rgba(255,255,255,.12), transparent 55%),
+        linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+      border:1px solid var(--stroke);
+      backdrop-filter: blur(var(--blur));
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      position:relative;
+    }
+
+    .card .inner{ padding:16px; }
+    .card h2{
+      margin:0 0 8px;
+      font-size:14px;
+      letter-spacing:.3px;
+      color: rgba(255,255,255,.86);
+    }
+    .card p{
+      margin:0 0 14px;
+      color: var(--muted);
+      font-size:13px;
+      line-height:1.45;
+    }
+
+    .toolbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:12px;
+    }
+
+    .pill{
+      display:flex; gap:8px; align-items:center;
+      padding:10px 12px;
+      border-radius:999px;
+      border:1px solid var(--stroke);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+      backdrop-filter: blur(var(--blur));
+      box-shadow: 0 10px 40px rgba(0,0,0,.35);
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    /* Кнопки БЕЗ “частиц/бликов” */
+    .btn{
+      cursor:pointer;
+      border:none;
+      color:var(--text);
+      font-weight:650;
+      letter-spacing:.2px;
+      padding:10px 14px;
+      border-radius:999px;
+
+      background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
+      border:1px solid var(--stroke2);
+      backdrop-filter: blur(var(--blur));
+      box-shadow: 0 12px 40px rgba(0,0,0,.35);
+
+      transition: transform .15s ease, filter .15s ease, border-color .15s ease;
+      font-size:13px;
+    }
+    .btn:hover{ transform: translateY(-1px); filter: brightness(1.04); border-color: rgba(255,255,255,.28); }
+    .btn:active{ transform: translateY(0px) scale(.99); }
+
+    .btn.primary{
+      background: linear-gradient(140deg, rgba(160,180,255,.92), rgba(140,255,220,.40));
+      border-color: rgba(255,255,255,.26);
+      color:#071018;
+      text-shadow:none;
+    }
+
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      margin-bottom:12px;
+    }
+    label{
+      font-size:12px;
+      color: var(--muted2);
+      letter-spacing:.2px;
+    }
+    input, textarea{
+      width:100%;
+      padding:11px 12px;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.14);
+      outline:none;
+      color: var(--text);
+      background: rgba(0,0,0,.25);
+      backdrop-filter: blur(var(--blur));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+      font-size:13px;
+    }
+    textarea{ min-height: 92px; resize: vertical; }
+
+    .row{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    @media (max-width: 540px){
+      .row{ grid-template-columns: 1fr; }
+    }
+
+    .hint{
+      font-size:12px;
+      color: var(--muted2);
+      margin-top:6px;
+    }
+    .mono{
+      font-family: var(--mono);
+      font-size: 12px;
+      color: rgba(255,255,255,.75);
+    }
+
+    .toast{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.22);
+      color: var(--muted);
+      font-size:13px;
+      display:none;
+    }
+    .toast.ok{ border-color: rgba(120,255,210,.25); color: rgba(190,255,235,.95); }
+    .toast.err{ border-color: rgba(255,120,140,.25); color: rgba(255,200,210,.95); }
+
+    /* Public profile view */
+    .profile-hero{
+      display:flex;
+      gap:16px;
+      align-items:flex-start;
+      padding:18px;
+    }
+    .avatar{
+      width:82px; height:82px;
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: linear-gradient(140deg, rgba(160,180,255,.85), rgba(140,255,220,.35));
+      box-shadow: 0 18px 50px rgba(0,0,0,.45);
+      overflow:hidden;
+      flex: 0 0 auto;
+      display:flex; align-items:center; justify-content:center;
+      position:relative;
+    }
+    .avatar img{ width:100%; height:100%; object-fit:cover; display:none; }
+    .avatar .initial{
+      font-weight:800;
+      letter-spacing:.5px;
+      color:#061018;
+      text-shadow: 0 1px 0 rgba(255,255,255,.2);
+      font-size:20px;
+    }
+
+    .profile-meta h3{
+      margin:2px 0 4px;
+      font-size:18px;
+      letter-spacing:.2px;
+    }
+    .profile-meta .u{
+      color: var(--muted2);
+      font-size: 13px;
+      margin-bottom:10px;
+    }
+    .profile-meta .bio{
+      color: var(--muted);
+      font-size: 13px;
+      line-height:1.5;
+      margin-bottom:12px;
+      white-space:pre-wrap;
+    }
+
+    .links{
+      display:flex; flex-wrap:wrap; gap:8px;
+    }
+    .chip{
+      text-decoration:none;
+      display:inline-flex;
+      gap:8px; align-items:center;
+      padding:9px 11px;
+      border-radius: 999px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.88);
+      font-size: 13px;
+      transition: transform .15s ease, filter .15s ease, border-color .15s ease;
+    }
+    .chip:hover{ transform: translateY(-1px); filter: brightness(1.05); border-color: rgba(255,255,255,.22); }
+
+    .embed{
+      padding: 0 18px 18px;
+    }
+    iframe{
+      width:100%;
+      height: 152px;
+      border:0;
+      border-radius: 18px;
+      overflow:hidden;
+      background: rgba(0,0,0,.2);
+      border:1px solid rgba(255,255,255,.12);
+    }
+
+    .sep{
+      height:1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.16), transparent);
+      margin: 10px 0 0;
+    }
+
+    .hidden{ display:none !important; }
+  </style>
+</head>
+
+<body>
+  <div class="noise"></div>
+
+  <div class="wrap">
+    <div class="grid">
+
+      <!-- AUTH CARD -->
+      <section class="card" id="authCard">
+        <div class="inner">
+          <h2>Вход / Регистрация</h2>
+          <p>Создай аккаунт и собери визитку с био, ссылками и Spotify-плеером.</p>
+
+          <div class="row">
+            <div class="field">
+              <label>Email</label>
+              <input id="authEmail" type="email" placeholder="name@email.com" autocomplete="email" />
+            </div>
+            <div class="field">
+              <label>Пароль</label>
+              <input id="authPass" type="password" placeholder="••••••••" autocomplete="current-password" />
+            </div>
+          </div>
+
+          <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:6px;">
+            <button class="btn primary" id="btnSignUp">Регистрация</button>
+            <button class="btn" id="btnSignIn">Вход</button>
+          </div>
+
+          <div class="toast" id="authToast"></div>
+
+          <div class="sep"></div>
+          <p class="hint">
+            Публичная ссылка:
+            <span class="mono">index.html#/@username</span>
+          </p>
+        </div>
+      </section>
+
+      <!-- EDITOR CARD -->
+      <section class="card hidden" id="editorCard">
+        <div class="inner">
+
+          <div class="toolbar">
+            <div class="pill" id="sessionPill">Не авторизован</div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              <button class="btn" id="btnGoMyProfile">Мой профиль</button>
+              <button class="btn" id="btnLogout">Выход</button>
+            </div>
+          </div>
+
+          <h2>Редактор профиля</h2>
+          <p>Заполни поля и сохрани. Профиль станет публичным по username.</p>
+
+          <div class="row">
+            <div class="field">
+              <label>Username (латиница/цифры/_) *</label>
+              <input id="username" placeholder="yourname" />
+              <div class="hint">Пример: <span class="mono">unusovozod141</span></div>
+            </div>
+            <div class="field">
+              <label>Display name</label>
+              <input id="displayName" placeholder="Озодбек Юнусов" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Bio</label>
+            <textarea id="bio" placeholder="Кто ты, чем занимаешься…"></textarea>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label>Telegram ссылка</label>
+              <input id="telegramUrl" placeholder="https://t.me/username" />
+            </div>
+            <div class="field">
+              <label>Discord ссылка</label>
+              <input id="discordUrl" placeholder="https://discord.gg/INVITE или https://discord.com/users/ID" />
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label>Spotify ссылка</label>
+              <input id="spotifyUrl" placeholder="https://open.spotify.com/artist/..." />
+            </div>
+            <div class="field">
+              <label>Spotify embed (опционально)</label>
+              <input id="spotifyEmbed" placeholder="https://open.spotify.com/embed/track/..." />
+              <div class="hint">
+                Вставь embed-ссылку: <span class="mono">Share → Embed → Copy link</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label>Avatar URL</label>
+              <input id="avatarUrl" placeholder="https://..." />
+            </div>
+            <div class="field">
+              <label>Публичная ссылка</label>
+              <input id="publicLink" readonly />
+            </div>
+          </div>
+
+          <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:6px;">
+            <button class="btn primary" id="btnSave">Сохранить</button>
+            <button class="btn" id="btnOpenPublic">Открыть</button>
+            <button class="btn" id="btnCopyLink">Скопировать</button>
+          </div>
+
+          <div class="toast" id="editorToast"></div>
+        </div>
+      </section>
+
+      <!-- PUBLIC PROFILE CARD -->
+      <section class="card hidden" id="publicCard">
+        <div class="inner">
+          <div class="toolbar">
+            <div class="pill" id="publicPill">Публичный профиль</div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              <button class="btn" id="btnBack">Назад</button>
+              <button class="btn hidden" id="btnEdit">Редактор</button>
+              <button class="btn hidden" id="btnLogout2">Выход</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-hero">
+          <div class="avatar" id="pubAvatar">
+            <img id="pubAvatarImg" alt="avatar" />
+            <div class="initial" id="pubInitial">BG</div>
+          </div>
+          <div class="profile-meta">
+            <h3 id="pubName">Загрузка…</h3>
+            <div class="u" id="pubUser">@username</div>
+            <div class="bio" id="pubBio"></div>
+            <div class="links" id="pubLinks"></div>
+          </div>
+        </div>
+
+        <div class="embed" id="pubEmbedWrap">
+          <iframe id="pubEmbed" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- Supabase JS (v2) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+    // =========================
+    // 1) CONFIG: put your keys
+    // =========================
+    const SUPABASE_URL = "https://hgrndvelvywpsqmhgebe.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_BI4N4AdouSra5Bk4JHg7-w_fN1_a3PU";
+
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // =========================
+    // 2) Helpers
+    // =========================
+    const $ = (id) => document.getElementById(id);
+
+    function toast(el, msg, type="ok"){
+      el.classList.remove("ok","err");
+      el.classList.add(type === "err" ? "err" : "ok");
+      el.textContent = msg;
+      el.style.display = "block";
+    }
+    function hideToast(el){ el.style.display = "none"; el.textContent=""; }
+
+    function normalizeUsername(u){
+      return (u || "")
+        .trim()
+        .toLowerCase()
+        .replace(/^@/, "");
+    }
+
+    function isValidUsername(u){
+      return /^[a-z0-9_]{3,24}$/.test(u);
+    }
+
+    function safeUrl(u){
+      if(!u) return "";
+      const s = u.trim();
+      if (!/^https?:\/\/.+/i.test(s)) return "";
+      return s;
+    }
+
+    function buildPublicLink(username){
+      const base = location.href.split("#")[0];
+      return `${base}#/@${normalizeUsername(username)}`;
+    }
+
+    function currentRoute(){
+      const h = location.hash || "";
+      const m = h.match(/^#\/@([a-z0-9_]{3,24})$/i);
+      return m ? { type: "public", username: normalizeUsername(m[1]) } : { type: "app" };
+    }
+
+    function setSessionPill(session){
+      const pill = $("sessionPill");
+      if(!pill) return;
+      if(session?.user){
+        pill.textContent = `Вошли: ${session.user.email}`;
+      } else {
+        pill.textContent = "Не авторизован";
+      }
+    }
+
+    function showAuth(show){
+      $("authCard").classList.toggle("hidden", !show);
+      $("editorCard").classList.toggle("hidden", show);
+    }
+
+    function showPublic(show){
+      $("publicCard").classList.toggle("hidden", !show);
+      $("authCard").classList.toggle("hidden", show);
+      $("editorCard").classList.toggle("hidden", show);
+    }
+
+    // =========================
+    // 3) Auth
+    // =========================
+    async function signUp(){
+      hideToast($("authToast"));
+      const email = $("authEmail").value.trim();
+      const password = $("authPass").value;
+
+      if(!email || !password) return toast($("authToast"), "Заполни email и пароль.", "err");
+
+      const { error } = await sb.auth.signUp({ email, password });
+      if(error) return toast($("authToast"), error.message, "err");
+
+      toast($("authToast"), "Регистрация успешна. Если включено подтверждение email — проверь почту.", "ok");
+      await refreshUI();
+    }
+
+    async function signIn(){
+      hideToast($("authToast"));
+      const email = $("authEmail").value.trim();
+      const password = $("authPass").value;
+
+      if(!email || !password) return toast($("authToast"), "Заполни email и пароль.", "err");
+
+      const { error } = await sb.auth.signInWithPassword({ email, password });
+      if(error) return toast($("authToast"), error.message, "err");
+
+      toast($("authToast"), "Вход выполнен.", "ok");
+      await refreshUI();
+    }
+
+    async function logout(){
+      await sb.auth.signOut();
+      await refreshUI();
+    }
+
+    // =========================
+    // 4) Profiles CRUD
+    // =========================
+    async function loadMyProfile(user){
+      const { data, error } = await sb
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if(error) {
+        toast($("editorToast"), error.message, "err");
+        return null;
+      }
+      return data;
+    }
+
+    async function upsertMyProfile(user, payload){
+      const now = new Date().toISOString();
+      const row = { id: user.id, updated_at: now, ...payload };
+
+      const { data, error } = await sb
+        .from("profiles")
+        .upsert(row, { onConflict: "id" })
+        .select()
+        .single();
+
+      if(error) {
+        toast($("editorToast"), error.message, "err");
+        return null;
+      }
+      return data;
+    }
+
+    async function loadPublicProfile(username){
+      const { data, error } = await sb
+        .from("profiles")
+        .select("*")
+        .eq("username", normalizeUsername(username))
+        .maybeSingle();
+
+      if(error) return { error };
+      if(!data) return { notFound: true };
+      return { data };
+    }
+
+    // =========================
+    // 5) Render: Editor
+    // =========================
+    function fillEditor(profile){
+      $("username").value = profile?.username || "";
+      $("displayName").value = profile?.display_name || "";
+      $("bio").value = profile?.bio || "";
+      $("telegramUrl").value = profile?.telegram_url || "";
+      $("discordUrl").value = profile?.discord_url || "";
+      $("spotifyUrl").value = profile?.spotify_url || "";
+      $("spotifyEmbed").value = profile?.spotify_embed || "";
+      $("avatarUrl").value = profile?.avatar_url || "";
+
+      const u = normalizeUsername($("username").value);
+      $("publicLink").value = u ? buildPublicLink(u) : "";
+    }
+
+    function editorLinkLiveUpdate(){
+      const u = normalizeUsername($("username").value);
+      $("publicLink").value = u ? buildPublicLink(u) : "";
+    }
+
+    async function saveProfile(){
+      hideToast($("editorToast"));
+      const { data: { session } } = await sb.auth.getSession();
+      const user = session?.user;
+      if(!user) return toast($("editorToast"), "Сначала войди.", "err");
+
+      const username = normalizeUsername($("username").value);
+      if(!isValidUsername(username)) {
+        return toast($("editorToast"), "Username: 3–24 символа (a-z, 0-9, _)", "err");
+      }
+
+      const payload = {
+        username,
+        display_name: $("displayName").value.trim() || null,
+        bio: $("bio").value.trim() || null,
+        telegram_url: safeUrl($("telegramUrl").value) || null,
+        discord_url: safeUrl($("discordUrl").value) || null,
+        spotify_url: safeUrl($("spotifyUrl").value) || null,
+        spotify_embed: safeUrl($("spotifyEmbed").value) || null,
+        avatar_url: safeUrl($("avatarUrl").value) || null,
+      };
+
+      const saved = await upsertMyProfile(user, payload);
+      if(saved){
+        fillEditor(saved);
+        toast($("editorToast"), "Сохранено.", "ok");
+      }
+    }
+
+    async function openPublicFromEditor(){
+      const u = normalizeUsername($("username").value);
+      if(!u) return toast($("editorToast"), "Укажи username.", "err");
+      location.hash = `/@${u}`;
+      await handleRoute();
+    }
+
+    async function copyLink(){
+      const link = $("publicLink").value;
+      if(!link) return toast($("editorToast"), "Ссылка пустая — укажи username.", "err");
+      try{
+        await navigator.clipboard.writeText(link);
+        toast($("editorToast"), "Скопировано.", "ok");
+      } catch {
+        toast($("editorToast"), "Не удалось скопировать.", "err");
+      }
+    }
+
+    // =========================
+    // 6) Render: Public profile
+    // =========================
+    function setPublicAvatar(name, url){
+      const img = $("pubAvatarImg");
+      const init = $("pubInitial");
+
+      const initial = (name || "BG").trim().slice(0,2).toUpperCase();
+      init.textContent = initial;
+
+      if(url){
+        img.src = url;
+        img.onload = () => { img.style.display = "block"; init.style.display="none"; };
+        img.onerror = () => { img.style.display = "none"; init.style.display="block"; };
+      } else {
+        img.style.display = "none";
+        init.style.display = "block";
+      }
+    }
+
+    function renderLinks(profile){
+      const wrap = $("pubLinks");
+      wrap.innerHTML = "";
+
+      const links = [
+        { label: "Telegram", url: profile.telegram_url },
+        { label: "Discord", url: profile.discord_url },
+        { label: "Spotify", url: profile.spotify_url },
+      ].filter(x => x.url);
+
+      if(!links.length){
+        const span = document.createElement("span");
+        span.className = "mono";
+        span.textContent = "Ссылок нет.";
+        wrap.appendChild(span);
+        return;
+      }
+
+      for(const l of links){
+        const a = document.createElement("a");
+        a.className = "chip";
+        a.href = l.url;
+        a.target = "_blank";
+        a.rel = "noreferrer";
+        a.textContent = l.label;
+        wrap.appendChild(a);
+      }
+    }
+
+    function renderEmbed(profile){
+      const wrap = $("pubEmbedWrap");
+      const iframe = $("pubEmbed");
+      const embed = profile.spotify_embed || "";
+
+      if(embed && embed.includes("open.spotify.com/embed")){
+        iframe.src = embed;
+        wrap.classList.remove("hidden");
+      } else {
+        iframe.removeAttribute("src");
+        wrap.classList.add("hidden");
+      }
+    }
+
+    async function renderPublic(username){
+      showPublic(true);
+
+      $("pubName").textContent = "Загрузка…";
+      $("pubUser").textContent = `@${normalizeUsername(username)}`;
+      $("pubBio").textContent = "";
+      $("pubLinks").innerHTML = "";
+      $("pubEmbedWrap").classList.add("hidden");
+
+      const res = await loadPublicProfile(username);
+      if(res.error){
+        $("pubName").textContent = "Ошибка";
+        $("pubBio").textContent = res.error.message || "Не удалось загрузить профиль.";
+        return;
+      }
+      if(res.notFound){
+        $("pubName").textContent = "Не найдено";
+        $("pubBio").textContent = "Проверь username или создай профиль.";
+        return;
+      }
+
+      const p = res.data;
+      const name = p.display_name || p.username;
+
+      $("pubName").textContent = name;
+      $("pubUser").textContent = `@${p.username}`;
+      $("pubBio").textContent = p.bio || "—";
+
+      setPublicAvatar(name, p.avatar_url);
+      renderLinks(p);
+      renderEmbed(p);
+
+      // показать кнопки редактирования если пользователь залогинен
+      const { data: { session } } = await sb.auth.getSession();
+      const authed = !!session?.user;
+      $("btnEdit").classList.toggle("hidden", !authed);
+      $("btnLogout2").classList.toggle("hidden", !authed);
+    }
+
+    // =========================
+    // 7) Routing + UI refresh
+    // =========================
+    async function handleRoute(){
+      const route = currentRoute();
+      if(route.type === "public"){
+        await renderPublic(route.username);
+        return;
+      }
+      showPublic(false);
+      await refreshUI();
+    }
+
+    async function refreshUI(){
+      hideToast($("editorToast"));
+      const { data: { session } } = await sb.auth.getSession();
+      const isAuthed = !!session?.user;
+
+      setSessionPill(session);
+
+      if(!isAuthed){
+        showAuth(true);
+        fillEditor(null);
+        return;
+      }
+
+      showAuth(false);
+
+      const profile = await loadMyProfile(session.user);
+
+      if(!profile){
+        fillEditor({
+          username: "",
+          display_name: session.user.email?.split("@")[0] || "",
+          bio: "",
+          telegram_url: "",
+          discord_url: "",
+          spotify_url: "",
+          spotify_embed: "",
+          avatar_url: ""
+        });
+        return;
+      }
+
+      fillEditor(profile);
+    }
+
+    // =========================
+    // 8) Events
+    // =========================
+    $("btnSignUp").addEventListener("click", signUp);
+    $("btnSignIn").addEventListener("click", signIn);
+
+    $("btnLogout").addEventListener("click", logout);
+    $("btnLogout2").addEventListener("click", logout);
+
+    $("btnSave").addEventListener("click", saveProfile);
+    $("btnOpenPublic").addEventListener("click", openPublicFromEditor);
+    $("btnCopyLink").addEventListener("click", copyLink);
+
+    $("username").addEventListener("input", editorLinkLiveUpdate);
+
+    $("btnGoMyProfile").addEventListener("click", async () => {
+      location.hash = "";
+      await handleRoute();
+    });
+
+    $("btnBack").addEventListener("click", async () => {
+      // назад: если залогинен -> в редактор, если нет -> на логин
+      location.hash = "";
+      await handleRoute();
+    });
+
+    $("btnEdit").addEventListener("click", async () => {
+      location.hash = "";
+      await handleRoute();
+    });
+
+    window.addEventListener("hashchange", handleRoute);
+
+    sb.auth.onAuthStateChange(async () => {
+      if(currentRoute().type === "public") {
+        // обновим кнопки в паблике
+        const route = currentRoute();
+        if(route.type === "public") await renderPublic(route.username);
+        return;
+      }
+      await refreshUI();
+    });
+
+    // init
+    (async () => {
+      await handleRoute();
+    })();
+  </script>
+</body>
+</html>
