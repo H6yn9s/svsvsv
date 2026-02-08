@@ -1,0 +1,1033 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BioProfile</title>
+  <style>
+    :root{
+      --bg0:#050A16;
+      --bg1:#071028;
+      --bg2:#0B1A3C;
+      --card:#0A1633;
+      --card2:#0C1D44;
+      --stroke:rgba(255,255,255,.08);
+      --stroke2:rgba(255,255,255,.12);
+      --text:#EAF1FF;
+      --muted:rgba(234,241,255,.65);
+      --muted2:rgba(234,241,255,.45);
+      --accent:#2B6CFF;
+      --accent2:#6AA0FF;
+      --good:#20D39B;
+      --bad:#FF4D6D;
+      --shadow: 0 18px 55px rgba(0,0,0,.45);
+      --radius: 18px;
+      --radius2: 22px;
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Liberation Sans", sans-serif;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:var(--font);
+      color:var(--text);
+      background:
+        radial-gradient(1200px 700px at 30% 10%, rgba(43,108,255,.18), transparent 55%),
+        radial-gradient(900px 650px at 85% 20%, rgba(106,160,255,.12), transparent 55%),
+        radial-gradient(1200px 800px at 60% 100%, rgba(32,211,155,.06), transparent 60%),
+        linear-gradient(180deg, var(--bg0), var(--bg1) 55%, var(--bg0));
+      min-height:100vh;
+      padding:24px 16px 110px;
+    }
+
+    .wrap{
+      max-width:980px;
+      margin:0 auto;
+    }
+
+    header{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:16px;
+      margin-bottom:18px;
+    }
+
+    .brand{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+
+    .brand h1{
+      margin:0;
+      font-size:22px;
+      letter-spacing:.2px;
+      font-weight:800;
+    }
+
+    .brand p{
+      margin:0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.35;
+      max-width:620px;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 12px;
+      border-radius:999px;
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--stroke);
+      box-shadow:0 10px 30px rgba(0,0,0,.25);
+      user-select:none;
+      font-size:13px;
+      color:var(--muted);
+      white-space:nowrap;
+    }
+
+    .pill b{ color:var(--text); font-weight:700; }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap:16px;
+    }
+
+    @media (max-width: 920px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      border:1px solid var(--stroke);
+      border-radius:var(--radius2);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+
+    .card .head{
+      padding:18px 18px 12px;
+      border-bottom:1px solid var(--stroke);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+
+    .card .head h2{
+      margin:0;
+      font-size:16px;
+      letter-spacing:.2px;
+      font-weight:800;
+    }
+
+    .card .head .sub{
+      margin:0;
+      color:var(--muted);
+      font-size:12px;
+    }
+
+    .card .body{
+      padding:18px;
+    }
+
+    .row{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+    @media (max-width: 520px){
+      .row{ grid-template-columns: 1fr; }
+    }
+
+    label{
+      display:block;
+      font-size:12px;
+      color:var(--muted);
+      margin-bottom:7px;
+    }
+
+    input, textarea{
+      width:100%;
+      border-radius:14px;
+      border:1px solid var(--stroke2);
+      background:rgba(0,0,0,.22);
+      color:var(--text);
+      padding:12px 12px;
+      outline:none;
+      transition:.18s;
+      font-size:14px;
+    }
+    textarea{ min-height:110px; resize:vertical; }
+
+    input:focus, textarea:focus{
+      border-color:rgba(43,108,255,.55);
+      box-shadow:0 0 0 4px rgba(43,108,255,.12);
+    }
+
+    .btns{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:12px;
+    }
+
+    button{
+      border:none;
+      cursor:pointer;
+      border-radius:14px;
+      padding:12px 14px;
+      font-weight:700;
+      font-size:14px;
+      transition:.18s;
+      user-select:none;
+    }
+
+    .btn-primary{
+      background:linear-gradient(180deg, rgba(43,108,255,1), rgba(25,79,205,1));
+      color:white;
+      box-shadow:0 16px 35px rgba(43,108,255,.22);
+    }
+    .btn-primary:hover{ filter:brightness(1.06); transform:translateY(-1px); }
+
+    .btn-ghost{
+      background:rgba(255,255,255,.05);
+      color:var(--text);
+      border:1px solid var(--stroke);
+    }
+    .btn-ghost:hover{ background:rgba(255,255,255,.07); }
+
+    .btn-danger{
+      background:rgba(255,77,109,.12);
+      border:1px solid rgba(255,77,109,.28);
+      color:#FFD7DE;
+    }
+
+    .hint{
+      margin-top:10px;
+      font-size:12px;
+      color:var(--muted2);
+      line-height:1.35;
+    }
+
+    .sep{
+      height:1px;
+      background:var(--stroke);
+      margin:14px 0;
+    }
+
+    /* public profile preview */
+    .profile{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+
+    .avatar{
+      width:58px;
+      height:58px;
+      border-radius:18px;
+      background:linear-gradient(180deg, rgba(43,108,255,.35), rgba(255,255,255,.06));
+      border:1px solid var(--stroke);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:900;
+      letter-spacing:.6px;
+      box-shadow:0 18px 40px rgba(0,0,0,.35);
+    }
+
+    .profileTop{
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+
+    .pname{
+      font-size:18px;
+      font-weight:900;
+      margin:0;
+      line-height:1.1;
+    }
+    .puser{
+      margin:4px 0 0;
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    .bio{
+      margin:0;
+      color:rgba(234,241,255,.82);
+      line-height:1.45;
+      font-size:14px;
+      white-space:pre-wrap;
+    }
+
+    .linkGrid{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:10px;
+      margin-top:8px;
+    }
+
+    .linkBtn{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:13px 14px;
+      border-radius:16px;
+      border:1px solid var(--stroke);
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.15));
+      color:var(--text);
+      text-decoration:none;
+      font-weight:800;
+      transition:.18s;
+    }
+    .linkBtn:hover{
+      transform:translateY(-1px);
+      border-color:rgba(43,108,255,.45);
+      box-shadow:0 18px 45px rgba(0,0,0,.35);
+    }
+    .linkBtn small{
+      font-weight:700;
+      color:var(--muted);
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid var(--stroke);
+      background:rgba(255,255,255,.04);
+      color:var(--muted);
+      font-size:12px;
+    }
+
+    /* bottom nav */
+    .nav{
+      position:fixed;
+      left:0;
+      right:0;
+      bottom:16px;
+      display:flex;
+      justify-content:center;
+      pointer-events:none;
+      z-index:50;
+    }
+
+    .navInner{
+      pointer-events:auto;
+      width:min(720px, calc(100% - 26px));
+      border-radius:999px;
+      background:linear-gradient(180deg, rgba(9,18,45,.92), rgba(7,12,30,.92));
+      border:1px solid rgba(255,255,255,.10);
+      box-shadow:0 25px 70px rgba(0,0,0,.55);
+      padding:10px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:center;
+      backdrop-filter: blur(12px);
+    }
+
+    .tab{
+      flex:1;
+      max-width:220px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      padding:12px 14px;
+      border-radius:999px;
+      border:1px solid transparent;
+      background:transparent;
+      color:rgba(234,241,255,.75);
+      font-weight:900;
+      letter-spacing:.2px;
+      font-size:13px;
+    }
+
+    .tab.active{
+      background:linear-gradient(180deg, rgba(43,108,255,.28), rgba(43,108,255,.12));
+      border-color:rgba(43,108,255,.35);
+      color:var(--text);
+      box-shadow:0 18px 55px rgba(43,108,255,.12);
+    }
+
+    .tab span{
+      display:inline-flex;
+      width:8px;
+      height:8px;
+      border-radius:999px;
+      background:rgba(255,255,255,.25);
+    }
+    .tab.active span{ background:rgba(43,108,255,1); }
+
+    .toast{
+      position:fixed;
+      top:18px;
+      left:50%;
+      transform:translateX(-50%);
+      padding:12px 14px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.55);
+      color:var(--text);
+      box-shadow:0 20px 60px rgba(0,0,0,.45);
+      backdrop-filter: blur(10px);
+      font-size:13px;
+      font-weight:800;
+      opacity:0;
+      pointer-events:none;
+      transition:.2s;
+      z-index:80;
+    }
+    .toast.show{ opacity:1; }
+
+    .hide{ display:none !important; }
+  </style>
+</head>
+<body>
+  <div class="toast" id="toast"></div>
+
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <h1>BioProfile</h1>
+        <p>
+          Создай профиль, биографию и ссылки. Поделись ссылкой вида
+          <b>#u=USERNAME</b> — человек увидит только твою био-страницу и регистрацию снизу.
+        </p>
+      </div>
+      <div class="pill">
+        <b id="pillState">Гость</b>
+        <span>•</span>
+        <span id="pillInfo">нет активного профиля</span>
+      </div>
+    </header>
+
+    <div class="grid">
+
+      <!-- LEFT: editor / register -->
+      <section class="card" id="cardEditor">
+        <div class="head">
+          <div>
+            <h2 id="editorTitle">Профиль</h2>
+            <p class="sub" id="editorSub">Создание, редактирование и ссылка</p>
+          </div>
+          <span class="badge" id="modeBadge">Редактор</span>
+        </div>
+
+        <div class="body" id="editorBody">
+
+          <!-- PROFILE EDIT -->
+          <div id="viewProfileEdit">
+            <div class="row">
+              <div>
+                <label>Ник / Имя</label>
+                <input id="inpName" placeholder="Например: Sweetie" maxlength="28"/>
+              </div>
+              <div>
+                <label>Username (для ссылки)</label>
+                <input id="inpUser" placeholder="например: sweetie" maxlength="24"/>
+                <div class="hint">Только латиница, цифры, подчёркивания. Без пробелов.</div>
+              </div>
+            </div>
+
+            <div style="margin-top:12px;">
+              <label>Биография</label>
+              <textarea id="inpBio" placeholder="Напиши о себе. Можно в несколько строк."></textarea>
+            </div>
+
+            <div class="sep"></div>
+
+            <div class="row">
+              <div>
+                <label>Discord (ссылка)</label>
+                <input id="inpDiscord" placeholder="https://discord.gg/..." />
+              </div>
+              <div>
+                <label>Telegram (ссылка)</label>
+                <input id="inpTelegram" placeholder="https://t.me/..." />
+              </div>
+            </div>
+
+            <div style="margin-top:12px;">
+              <label>Spotify (ссылка)</label>
+              <input id="inpSpotify" placeholder="https://open.spotify.com/..." />
+            </div>
+
+            <div class="sep"></div>
+
+            <div class="btns">
+              <button class="btn-primary" id="btnSave">Сохранить профиль</button>
+              <button class="btn-ghost" id="btnCopyLink">Скопировать ссылку</button>
+              <button class="btn-danger" id="btnLogout">Выйти</button>
+            </div>
+
+            <div class="hint">
+              Профиль сохраняется в браузере (localStorage). На GitHub Pages сервер не нужен.
+            </div>
+          </div>
+
+          <!-- REGISTER -->
+          <div id="viewRegister" class="hide">
+            <div class="row">
+              <div>
+                <label>Username</label>
+                <input id="regUser" placeholder="например: sweetie" maxlength="24"/>
+              </div>
+              <div>
+                <label>Пароль</label>
+                <input id="regPass" type="password" placeholder="••••••••" maxlength="64"/>
+              </div>
+            </div>
+
+            <div style="margin-top:12px;">
+              <label>Ник / Имя</label>
+              <input id="regName" placeholder="Например: Sweetie" maxlength="28"/>
+            </div>
+
+            <div style="margin-top:12px;">
+              <label>Биография</label>
+              <textarea id="regBio" placeholder="Напиши о себе."></textarea>
+            </div>
+
+            <div class="sep"></div>
+
+            <div class="btns">
+              <button class="btn-primary" id="btnRegister">Зарегистрироваться</button>
+              <button class="btn-ghost" id="btnGoLogin">Уже есть аккаунт</button>
+            </div>
+
+            <div class="hint">
+              Это локальная регистрация (на GitHub Pages без сервера). Работает на твоём устройстве.
+            </div>
+          </div>
+
+          <!-- LOGIN -->
+          <div id="viewLogin" class="hide">
+            <div class="row">
+              <div>
+                <label>Username</label>
+                <input id="logUser" placeholder="например: sweetie" maxlength="24"/>
+              </div>
+              <div>
+                <label>Пароль</label>
+                <input id="logPass" type="password" placeholder="••••••••" maxlength="64"/>
+              </div>
+            </div>
+
+            <div class="sep"></div>
+
+            <div class="btns">
+              <button class="btn-primary" id="btnLogin">Войти</button>
+              <button class="btn-ghost" id="btnGoRegister">Создать аккаунт</button>
+            </div>
+
+            <div class="hint">
+              Вход нужен, чтобы редактировать свой профиль и создавать ссылку.
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- RIGHT: preview -->
+      <section class="card" id="cardPreview">
+        <div class="head">
+          <div>
+            <h2 id="previewTitle">Публичная страница</h2>
+            <p class="sub" id="previewSub">То, что увидят по ссылке</p>
+          </div>
+          <span class="badge" id="publicBadge">Preview</span>
+        </div>
+
+        <div class="body">
+          <div class="profile">
+            <div class="profileTop">
+              <div class="avatar" id="avatar">BP</div>
+              <div>
+                <p class="pname" id="pName">Профиль не выбран</p>
+                <p class="puser" id="pUser">@none</p>
+              </div>
+            </div>
+
+            <p class="bio" id="pBio">
+              Открой ссылку на профиль или зайди в «Профиль» чтобы создать свой.
+            </p>
+
+            <div class="linkGrid" id="linksBox"></div>
+
+            <div class="hint" id="publicHint">
+              Если человек откроет ссылку вида <b>#u=username</b> — он увидит только эту страницу и регистрацию снизу.
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- bottom tabs -->
+  <div class="nav" id="bottomNav">
+    <div class="navInner">
+      <button class="tab active" data-tab="profile"><span></span> Профиль</button>
+      <button class="tab" data-tab="public"><span></span> Публично</button>
+      <button class="tab" data-tab="register"><span></span> Регистрация</button>
+    </div>
+  </div>
+
+<script>
+  /* ----------------------------
+     Simple Local DB
+  ---------------------------- */
+
+  const LS_USERS = "bp_users_v1";
+  const LS_SESSION = "bp_session_v1";
+
+  function loadUsers(){
+    try{
+      return JSON.parse(localStorage.getItem(LS_USERS) || "{}");
+    }catch(e){
+      return {};
+    }
+  }
+
+  function saveUsers(users){
+    localStorage.setItem(LS_USERS, JSON.stringify(users));
+  }
+
+  function getSession(){
+    try{
+      return JSON.parse(localStorage.getItem(LS_SESSION) || "null");
+    }catch(e){
+      return null;
+    }
+  }
+
+  function setSession(username){
+    localStorage.setItem(LS_SESSION, JSON.stringify({ username }));
+  }
+
+  function clearSession(){
+    localStorage.removeItem(LS_SESSION);
+  }
+
+  function normalizeUsername(u){
+    return (u || "").trim().toLowerCase();
+  }
+
+  function isValidUsername(u){
+    return /^[a-z0-9_]{3,24}$/.test(u);
+  }
+
+  function safeText(s){
+    return (s || "").toString();
+  }
+
+  function toast(msg){
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    setTimeout(()=> t.classList.remove("show"), 1800);
+  }
+
+  /* ----------------------------
+     UI refs
+  ---------------------------- */
+  const tabs = Array.from(document.querySelectorAll(".tab"));
+  const viewProfileEdit = document.getElementById("viewProfileEdit");
+  const viewRegister = document.getElementById("viewRegister");
+  const viewLogin = document.getElementById("viewLogin");
+
+  const pillState = document.getElementById("pillState");
+  const pillInfo = document.getElementById("pillInfo");
+  const modeBadge = document.getElementById("modeBadge");
+
+  // Editor inputs
+  const inpName = document.getElementById("inpName");
+  const inpUser = document.getElementById("inpUser");
+  const inpBio = document.getElementById("inpBio");
+  const inpDiscord = document.getElementById("inpDiscord");
+  const inpTelegram = document.getElementById("inpTelegram");
+  const inpSpotify = document.getElementById("inpSpotify");
+
+  // Register inputs
+  const regUser = document.getElementById("regUser");
+  const regPass = document.getElementById("regPass");
+  const regName = document.getElementById("regName");
+  const regBio = document.getElementById("regBio");
+
+  // Login inputs
+  const logUser = document.getElementById("logUser");
+  const logPass = document.getElementById("logPass");
+
+  // Preview
+  const avatar = document.getElementById("avatar");
+  const pName = document.getElementById("pName");
+  const pUser = document.getElementById("pUser");
+  const pBio = document.getElementById("pBio");
+  const linksBox = document.getElementById("linksBox");
+
+  /* ----------------------------
+     Routing: public link
+  ---------------------------- */
+  function getPublicUsernameFromHash(){
+    const h = location.hash || "";
+    // format: #u=username
+    const m = h.match(/u=([a-z0-9_]{3,24})/i);
+    return m ? normalizeUsername(m[1]) : null;
+  }
+
+  /* ----------------------------
+     Rendering
+  ---------------------------- */
+  function renderPreview(user){
+    if(!user){
+      avatar.textContent = "BP";
+      pName.textContent = "Профиль не выбран";
+      pUser.textContent = "@none";
+      pBio.textContent = "Открой ссылку на профиль или зайди в «Профиль» чтобы создать свой.";
+      linksBox.innerHTML = "";
+      return;
+    }
+
+    const name = safeText(user.name || "Без имени");
+    const uname = safeText(user.username || "none");
+    const bio = safeText(user.bio || "Биография не заполнена.");
+
+    avatar.textContent = (name.trim().slice(0,2) || "BP").toUpperCase();
+    pName.textContent = name;
+    pUser.textContent = "@" + uname;
+    pBio.textContent = bio;
+
+    const links = [
+      { key:"discord", title:"Discord", url:user.discord || "" },
+      { key:"telegram", title:"Telegram", url:user.telegram || "" },
+      { key:"spotify", title:"Spotify", url:user.spotify || "" },
+    ];
+
+    linksBox.innerHTML = "";
+    for(const l of links){
+      if(!l.url || !l.url.trim()) continue;
+      const a = document.createElement("a");
+      a.className = "linkBtn";
+      a.href = l.url.trim();
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.innerHTML = `<div>${l.title}<br><small>${l.url.trim()}</small></div><div>↗</div>`;
+      linksBox.appendChild(a);
+    }
+
+    if(linksBox.children.length === 0){
+      const empty = document.createElement("div");
+      empty.className = "hint";
+      empty.textContent = "Ссылки не добавлены.";
+      linksBox.appendChild(empty);
+    }
+  }
+
+  function setActiveTab(name){
+    tabs.forEach(t=>{
+      t.classList.toggle("active", t.dataset.tab === name);
+    });
+
+    // default: hide all
+    viewProfileEdit.classList.add("hide");
+    viewRegister.classList.add("hide");
+    viewLogin.classList.add("hide");
+
+    const session = getSession();
+    const users = loadUsers();
+
+    if(name === "profile"){
+      if(session && users[session.username]){
+        viewProfileEdit.classList.remove("hide");
+        modeBadge.textContent = "Редактор";
+      }else{
+        viewLogin.classList.remove("hide");
+        modeBadge.textContent = "Вход";
+      }
+    }
+
+    if(name === "public"){
+      // show nothing in left card except info
+      // We'll show login if not logged in, else profile edit? — but user asked windows separately:
+      // So for "public" we show login/register prompt:
+      if(session && users[session.username]){
+        // show small hint using profile edit but read-only? no.
+        // We'll show login view but with message:
+        viewLogin.classList.remove("hide");
+        modeBadge.textContent = "Публично";
+      }else{
+        viewLogin.classList.remove("hide");
+        modeBadge.textContent = "Публично";
+      }
+    }
+
+    if(name === "register"){
+      viewRegister.classList.remove("hide");
+      modeBadge.textContent = "Регистрация";
+    }
+  }
+
+  function updateTopPill(){
+    const session = getSession();
+    const users = loadUsers();
+    if(session && users[session.username]){
+      pillState.textContent = "Вход выполнен";
+      pillInfo.textContent = "@" + session.username;
+    }else{
+      pillState.textContent = "Гость";
+      pillInfo.textContent = "нет активного профиля";
+    }
+  }
+
+  function fillEditorFromSession(){
+    const session = getSession();
+    const users = loadUsers();
+    if(!session || !users[session.username]) return;
+
+    const u = users[session.username];
+
+    inpName.value = u.name || "";
+    inpUser.value = u.username || "";
+    inpBio.value = u.bio || "";
+    inpDiscord.value = u.discord || "";
+    inpTelegram.value = u.telegram || "";
+    inpSpotify.value = u.spotify || "";
+  }
+
+  /* ----------------------------
+     Public mode logic
+  ---------------------------- */
+  function setPublicMode(on){
+    const bottomNav = document.getElementById("bottomNav");
+    const cardEditor = document.getElementById("cardEditor");
+
+    if(on){
+      // In public mode:
+      // - Right card shows public profile
+      // - Left card forced to "register" view
+      // - Bottom tabs still visible, but only "register" makes sense.
+      // We'll keep tabs, but auto switch to register and hide profile edit.
+      toast("Открыт публичный профиль");
+      setActiveTab("register");
+      // We want registration visible "снизу" - tabs are bottom already.
+      // Also we can hide editor title, but ok.
+      cardEditor.querySelector("#editorTitle").textContent = "Регистрация";
+      cardEditor.querySelector("#editorSub").textContent = "Создай свой профиль ниже";
+      modeBadge.textContent = "Публичный режим";
+    }else{
+      // Restore normal titles
+      cardEditor.querySelector("#editorTitle").textContent = "Профиль";
+      cardEditor.querySelector("#editorSub").textContent = "Создание, редактирование и ссылка";
+    }
+  }
+
+  /* ----------------------------
+     Events
+  ---------------------------- */
+  tabs.forEach(t=>{
+    t.addEventListener("click", ()=>{
+      const publicU = getPublicUsernameFromHash();
+      // If public link opened: user wanted biography + registration
+      // So we allow switching but keep register always accessible.
+      setActiveTab(t.dataset.tab);
+    });
+  });
+
+  document.getElementById("btnGoRegister").addEventListener("click", ()=>{
+    setActiveTab("register");
+  });
+
+  document.getElementById("btnGoLogin").addEventListener("click", ()=>{
+    setActiveTab("profile");
+  });
+
+  document.getElementById("btnRegister").addEventListener("click", ()=>{
+    const users = loadUsers();
+    const u = normalizeUsername(regUser.value);
+    const p = regPass.value || "";
+    const name = regName.value.trim();
+    const bio = regBio.value.trim();
+
+    if(!isValidUsername(u)){
+      toast("Username: 3-24, латиница/цифры/_");
+      return;
+    }
+    if(p.length < 4){
+      toast("Пароль минимум 4 символа");
+      return;
+    }
+    if(users[u]){
+      toast("Username уже занят");
+      return;
+    }
+
+    users[u] = {
+      username: u,
+      password: p,
+      name: name || u,
+      bio: bio || "",
+      discord: "",
+      telegram: "",
+      spotify: ""
+    };
+
+    saveUsers(users);
+    setSession(u);
+    updateTopPill();
+    fillEditorFromSession();
+    renderPreview(users[u]);
+
+    toast("Аккаунт создан");
+    setActiveTab("profile");
+  });
+
+  document.getElementById("btnLogin").addEventListener("click", ()=>{
+    const users = loadUsers();
+    const u = normalizeUsername(logUser.value);
+    const p = logPass.value || "";
+
+    if(!users[u]){
+      toast("Аккаунт не найден");
+      return;
+    }
+    if(users[u].password !== p){
+      toast("Неверный пароль");
+      return;
+    }
+
+    setSession(u);
+    updateTopPill();
+    fillEditorFromSession();
+    renderPreview(users[u]);
+    toast("Вход выполнен");
+    setActiveTab("profile");
+  });
+
+  document.getElementById("btnLogout").addEventListener("click", ()=>{
+    clearSession();
+    updateTopPill();
+    renderPreview(null);
+    toast("Вы вышли");
+    setActiveTab("profile");
+  });
+
+  document.getElementById("btnSave").addEventListener("click", ()=>{
+    const session = getSession();
+    if(!session) return toast("Сначала войди");
+
+    const users = loadUsers();
+    const current = users[session.username];
+    if(!current) return toast("Сессия не найдена");
+
+    const newName = inpName.value.trim();
+    const newUser = normalizeUsername(inpUser.value);
+    const bio = inpBio.value.trim();
+
+    if(!isValidUsername(newUser)){
+      toast("Username: 3-24, латиница/цифры/_");
+      return;
+    }
+
+    // rename user key if changed
+    if(newUser !== session.username){
+      if(users[newUser]){
+        toast("Этот username уже занят");
+        return;
+      }
+      delete users[session.username];
+      users[newUser] = { ...current, username: newUser };
+      setSession(newUser);
+    }
+
+    const u = users[newUser];
+    u.name = newName || newUser;
+    u.bio = bio || "";
+    u.discord = inpDiscord.value.trim();
+    u.telegram = inpTelegram.value.trim();
+    u.spotify = inpSpotify.value.trim();
+
+    saveUsers(users);
+    updateTopPill();
+    renderPreview(u);
+
+    toast("Сохранено");
+  });
+
+  document.getElementById("btnCopyLink").addEventListener("click", async ()=>{
+    const session = getSession();
+    const users = loadUsers();
+    if(!session || !users[session.username]){
+      toast("Сначала войди");
+      return;
+    }
+
+    const base = location.href.split("#")[0];
+    const url = base + "#u=" + users[session.username].username;
+
+    try{
+      await navigator.clipboard.writeText(url);
+      toast("Ссылка скопирована");
+    }catch(e){
+      // fallback
+      prompt("Скопируй ссылку:", url);
+    }
+  });
+
+  /* ----------------------------
+     Boot
+  ---------------------------- */
+  function boot(){
+    updateTopPill();
+
+    const users = loadUsers();
+    const session = getSession();
+
+    // if session exists: show his profile preview by default
+    if(session && users[session.username]){
+      fillEditorFromSession();
+      renderPreview(users[session.username]);
+    }else{
+      renderPreview(null);
+    }
+
+    // public link?
+    const publicU = getPublicUsernameFromHash();
+    if(publicU && users[publicU]){
+      renderPreview(users[publicU]);
+      setPublicMode(true);
+      // in public mode we should show registration tab active
+      setActiveTab("register");
+    }else if(publicU && !users[publicU]){
+      renderPreview({
+        username: publicU,
+        name: "Профиль не найден",
+        bio: "Этот пользователь не зарегистрирован на этом устройстве.",
+        discord:"",
+        telegram:"",
+        spotify:""
+      });
+      setPublicMode(true);
+      setActiveTab("register");
+    }else{
+      setPublicMode(false);
+      setActiveTab("profile");
+    }
+  }
+
+  window.addEventListener("hashchange", boot);
+  boot();
+</script>
+</body>
+</html> 
