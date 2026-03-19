@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>SoupVisuals RU — Лучшие PvP визуалы для Майнкрафт</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@400;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+
+:root {
+  --g:  #4ade80;
+  --g2: #16a34a;
+  --d:  #060a06;
+  --card: #0d130d;
+  --card2: #111811;
+  --gold:  #fbbf24;
+  --sky:   #38bdf8;
+  --hot:   #f97316;
+  --red:   #ef4444;
+  --purple:#a855f7;
+  --text:  #dde8dd;
+  --muted: #5a7a5a;
+  --border: rgba(74,222,128,0.12);
+  --r: 10px;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--d);
+  color:var(--text);
+  font-family:'Rajdhani',sans-serif;
+  overflow-x:hidden;
+}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:var(--d);}
+::-webkit-scrollbar-thumb{background:var(--g);border-radius:3px;}
+
+/* ── KEYFRAMES ── */
+@keyframes float{0%,100%{transform:translateY(0)rotate(0)}33%{transform:translateY(-16px)rotate(4deg)}66%{transform:translateY(-8px)rotate(-3deg)}}
+@keyframes gradient-bg{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes morph{0%,100%{border-radius:60% 40% 30% 70%/60% 30% 70% 40%}25%{border-radius:30% 60% 70% 40%/50% 60% 30% 60%}50%{border-radius:50% 60% 30% 60%/30% 70% 40% 60%}75%{border-radius:60% 30% 60% 40%/70% 40% 60% 30%}}
+@keyframes pulse-g{0%,100%{box-shadow:0 0 20px rgba(74,222,128,.35)}50%{box-shadow:0 0 60px rgba(74,222,128,.75),0 0 120px rgba(74,222,128,.2)}}
+@keyframes slide-up{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slide-left{from{opacity:0;transform:translateX(-32px)}to{opacity:1;transform:translateX(0)}}
+@keyframes slide-right{from{opacity:0;transform:translateX(32px)}to{opacity:1;transform:translateX(0)}}
+@keyframes neon-flicker{0%,100%{opacity:1}93%{opacity:1}94%{opacity:.2}96%{opacity:1}97%{opacity:.1}98%{opacity:1}}
+@keyframes bar-fill{from{width:0}}
+@keyframes count-anim{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
+@keyframes fall{0%{transform:translateY(-20px)rotate(0);opacity:.8}100%{transform:translateY(110vh)rotate(700deg);opacity:0}}
+@keyframes border-spin{to{--angle:360deg}}
+@keyframes glitch{
+  0%,100%{text-shadow:2px 0 #ef4444,-2px 0 #38bdf8;transform:translate(0)}
+  20%{text-shadow:-2px 0 #ef4444,2px 0 #38bdf8;transform:translate(-2px,1px)}
+  40%{text-shadow:2px 0 #ef4444,-2px 0 #38bdf8;transform:translate(2px,-1px)}
+  60%{text-shadow:-2px 0 #f97316,2px 0 #4ade80;transform:translate(-1px,2px)}
+  80%{text-shadow:2px 0 #a855f7,-2px 0 #fbbf24;transform:translate(1px,-2px)}
+}
+@keyframes hit-particle{
+  0%{transform:translate(0,0)scale(1);opacity:1}
+  100%{transform:translate(var(--dx),var(--dy))scale(0);opacity:0}
+}
+@keyframes typewrite{from{width:0}to{width:100%}}
+@keyframes blink{50%{border-color:transparent}}
+@keyframes swing{20%{transform:rotate(12deg)}40%{transform:rotate(-8deg)}60%{transform:rotate(5deg)}80%{transform:rotate(-4deg)}100%{transform:rotate(0)}}
+
+@property --angle{syntax:'<angle>';initial-value:0deg;inherits:false;}
+
+/* ── PARTICLES ── */
+.particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+.p{position:absolute;width:6px;height:6px;animation:fall linear infinite;}
+.p:nth-child(1){left:4%;background:#4ade80;animation-duration:9s;animation-delay:0s;}
+.p:nth-child(2){left:14%;background:#fbbf24;animation-duration:12s;animation-delay:1.5s;width:10px;height:10px;}
+.p:nth-child(3){left:27%;background:#38bdf8;animation-duration:7s;animation-delay:3s;}
+.p:nth-child(4){left:38%;background:#4ade80;animation-duration:10s;animation-delay:.8s;width:5px;height:5px;}
+.p:nth-child(5){left:52%;background:#a855f7;animation-duration:13s;animation-delay:2s;width:8px;height:8px;}
+.p:nth-child(6){left:63%;background:#4ade80;animation-duration:6s;animation-delay:4s;}
+.p:nth-child(7){left:74%;background:#f97316;animation-duration:11s;animation-delay:.3s;width:12px;height:12px;}
+.p:nth-child(8){left:83%;background:#38bdf8;animation-duration:8s;animation-delay:2.8s;}
+.p:nth-child(9){left:91%;background:#4ade80;animation-duration:15s;animation-delay:1s;width:5px;height:5px;}
+.p:nth-child(10){left:44%;background:#ef4444;animation-duration:10s;animation-delay:5s;}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  backdrop-filter:blur(24px) saturate(180%);
+  -webkit-backdrop-filter:blur(24px) saturate(180%);
+  background:rgba(6,10,6,.8);
+  border-bottom:1px solid var(--border);
+  padding:12px 20px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.nav-logo{
+  font-family:'Press Start 2P',monospace;font-size:.52rem;
+  color:var(--g);text-decoration:none;letter-spacing:.1em;
+  animation:neon-flicker 7s ease infinite;
+}
+.nav-links{display:flex;gap:16px;align-items:center;}
+.nav-link{font-family:'Orbitron',monospace;font-size:.62rem;color:var(--muted);text-decoration:none;transition:color .2s;}
+.nav-link:hover{color:var(--g);}
+.nav-cta{
+  font-family:'Press Start 2P',monospace;font-size:.42rem;color:#000;
+  background:var(--g);border:none;padding:9px 16px;cursor:pointer;
+  text-decoration:none;letter-spacing:.05em;
+  clip-path:polygon(0 3px,3px 3px,3px 0,calc(100% - 3px) 0,calc(100% - 3px) 3px,100% 3px,100% calc(100% - 3px),calc(100% - 3px) calc(100% - 3px),calc(100% - 3px) 100%,3px 100%,3px calc(100% - 3px),0 calc(100% - 3px));
+  transition:filter .2s,transform .15s;
+}
+.nav-cta:hover{filter:brightness(1.2);transform:scale(1.06);}
+
+/* ── HERO ── */
+.hero{
+  position:relative;min-height:100svh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:100px 20px 60px;overflow:hidden;z-index:1;
+}
+.hero-bg{position:absolute;inset:0;z-index:-1;
+  background:
+    radial-gradient(ellipse at 15% 30%,rgba(74,222,128,.13) 0,transparent 55%),
+    radial-gradient(ellipse at 85% 70%,rgba(56,189,248,.1) 0,transparent 50%),
+    radial-gradient(ellipse at 50% 100%,rgba(168,85,247,.08) 0,transparent 45%),
+    var(--d);
+}
+.hero-bg::after{
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(74,222,128,.04) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(74,222,128,.04) 1px,transparent 1px);
+  background-size:32px 32px;
+}
+
+.badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.28);
+  border-radius:4px;padding:7px 16px;
+  font-family:'Press Start 2P',monospace;font-size:.48rem;color:var(--g);
+  margin-bottom:28px;animation:slide-up .5s ease both;letter-spacing:.08em;
+}
+.badge-dot{width:6px;height:6px;border-radius:50%;background:var(--g);box-shadow:0 0 8px var(--g);animation:pulse-g 2s ease infinite;}
+
+.hero-icon{font-size:5.5rem;display:block;margin-bottom:20px;animation:float 4s ease-in-out infinite,slide-up .6s ease .1s both;filter:drop-shadow(0 0 30px rgba(74,222,128,.6));}
+
+.hero h1{font-family:'Press Start 2P',monospace;font-size:clamp(1.3rem,5vw,3rem);line-height:1.4;margin-bottom:14px;animation:slide-up .7s ease .2s both;}
+.h1-1{display:block;color:#fff;text-shadow:4px 4px 0 rgba(0,0,0,.6);}
+.h1-2{
+  display:block;
+  background:linear-gradient(90deg,var(--g),var(--sky),var(--purple),var(--g));
+  background-size:200% auto;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:shimmer 3s linear infinite,slide-up .7s ease .3s both;
+}
+
+.hero-sub{font-size:1.15rem;color:var(--muted);max-width:520px;margin:0 auto 12px;line-height:1.7;font-weight:600;animation:slide-up .7s ease .4s both;}
+.hero-sub b{color:var(--g);}
+
+.type-line{
+  font-family:'Orbitron',monospace;font-size:.72rem;color:var(--gold);
+  overflow:hidden;white-space:nowrap;border-right:2px solid var(--gold);
+  width:0;display:inline-block;
+  animation:typewrite 2s steps(24) .9s forwards,blink .7s step-end infinite;
+  margin-bottom:36px;
+}
+
+.cta-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;animation:slide-up .7s ease .6s both;}
+
+.btn-dl{
+  position:relative;display:inline-flex;align-items:center;gap:12px;
+  padding:18px 44px;
+  font-family:'Press Start 2P',monospace;font-size:.7rem;color:#000;
+  text-decoration:none;letter-spacing:.05em;overflow:hidden;
+  clip-path:polygon(0 5px,5px 5px,5px 0,calc(100% - 5px) 0,calc(100% - 5px) 5px,100% 5px,100% calc(100% - 5px),calc(100% - 5px) calc(100% - 5px),calc(100% - 5px) 100%,5px 100%,5px calc(100% - 5px),0 calc(100% - 5px));
+  transition:transform .2s,filter .2s;
+}
+.btn-dl::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(-45deg,#22c55e,#4ade80,#86efac,#4ade80,#22c55e);
+  background-size:300%;animation:gradient-bg 1.8s ease infinite;
+}
+.btn-dl:hover{transform:translateY(-4px) scale(1.05);filter:brightness(1.2) drop-shadow(0 12px 36px rgba(74,222,128,.65));}
+.btn-dl:active{transform:translateY(2px) scale(.97);}
+.btn-dl span{position:relative;z-index:1;}
+
+.btn-ghost{font-family:'Orbitron',monospace;font-size:.7rem;color:var(--muted);background:none;border:1px solid rgba(100,116,139,.3);border-radius:4px;padding:10px 24px;cursor:pointer;text-decoration:none;transition:all .25s;}
+.btn-ghost:hover{color:var(--g);border-color:var(--g);background:rgba(74,222,128,.05);}
+
+/* ── BAND ── */
+.band{position:relative;z-index:2;overflow:hidden;background:rgba(74,222,128,.05);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:14px 0;}
+.band-track{display:flex;gap:44px;white-space:nowrap;animation:marquee 20s linear infinite;width:max-content;}
+.band-item{display:flex;align-items:center;gap:10px;font-family:'Orbitron',monospace;font-size:.68rem;color:var(--g);font-weight:700;}
+.band-sep{color:rgba(74,222,128,.25);}
+
+/* ── SECTION ── */
+section{position:relative;z-index:1;padding:80px 20px;max-width:920px;margin:0 auto;}
+.stag{font-family:'Press Start 2P',monospace;font-size:.48rem;color:var(--g);letter-spacing:.2em;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.stag::before{content:'';width:18px;height:2px;background:var(--g);}
+.sec-title{font-family:'Orbitron',monospace;font-size:clamp(1.4rem,4vw,2.3rem);font-weight:900;color:#fff;margin-bottom:44px;line-height:1.2;}
+
+/* ── COUNTERS ── */
+.counters{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:64px;}
+.cnt-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:24px 12px;text-align:center;position:relative;overflow:hidden;transition:transform .3s;}
+.cnt-card:hover{transform:translateY(-4px);}
+.cnt-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--g),var(--sky));}
+.cnt-num{font-family:'Orbitron',monospace;font-size:1.9rem;font-weight:900;color:var(--g);display:block;animation:count-anim .8s ease;line-height:1;margin-bottom:6px;}
+.cnt-label{font-size:.75rem;color:var(--muted);font-weight:700;letter-spacing:.05em;}
+
+/* ── FEATURES GRID ── */
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;}
+.feat-card{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r);
+  padding:26px;position:relative;overflow:hidden;
+  transition:transform .3s,border-color .3s;
+  animation:slide-up .55s ease both;
+}
+.feat-card::before{
+  content:'';position:absolute;inset:-2px;border-radius:calc(var(--r) + 2px);
+  background:conic-gradient(from var(--angle),var(--g),var(--sky),var(--purple),var(--gold),var(--g));
+  animation:border-spin 4s linear infinite;z-index:-1;opacity:0;transition:opacity .35s;
+}
+.feat-card:hover{transform:translateY(-5px);border-color:transparent;}
+.feat-card:hover::before{opacity:1;}
+.feat-card::after{content:'';position:absolute;inset:1px;background:var(--card);border-radius:calc(var(--r) - 2px);z-index:-1;}
+
+.feat-icon{font-size:2rem;margin-bottom:12px;display:block;filter:drop-shadow(0 0 10px rgba(74,222,128,.4));}
+.feat-title{font-family:'Orbitron',monospace;font-size:.85rem;font-weight:700;color:#fff;margin-bottom:8px;}
+.feat-desc{font-size:.9rem;color:var(--muted);line-height:1.6;font-weight:600;}
+
+/* ── TAG CLOUD ── */
+.tags{display:flex;flex-wrap:wrap;gap:9px;margin-top:32px;}
+.tag{
+  position:relative;display:inline-flex;align-items:center;gap:6px;
+  padding:7px 13px;border-radius:4px;font-family:'Orbitron',monospace;
+  font-size:.62rem;font-weight:700;border:1px solid;cursor:default;
+  transition:transform .2s;
+}
+.tag:hover{transform:translateY(-2px) scale(1.05);}
+.tag.green{color:var(--g);border-color:rgba(74,222,128,.3);background:rgba(74,222,128,.07);}
+.tag.blue{color:var(--sky);border-color:rgba(56,189,248,.3);background:rgba(56,189,248,.07);}
+.tag.gold{color:var(--gold);border-color:rgba(251,191,36,.3);background:rgba(251,191,36,.07);}
+.tag.purple{color:var(--purple);border-color:rgba(168,85,247,.3);background:rgba(168,85,247,.07);}
+.tag.red{color:var(--red);border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.07);}
+.tag::after{
+  content:attr(data-tip);position:absolute;bottom:calc(100% + 8px);left:50%;
+  transform:translateX(-50%) scale(.85);background:#1a241a;border:1px solid var(--border);
+  color:var(--text);padding:6px 10px;border-radius:4px;font-size:.58rem;white-space:nowrap;
+  opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:10;
+}
+.tag:hover::after{opacity:1;transform:translateX(-50%) scale(1);}
+
+/* ── VISUAL DEMO CARDS ── */
+.demo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;}
+
+.demo-card{
+  background:var(--card2);border:1px solid var(--border);border-radius:var(--r);
+  padding:0;overflow:hidden;transition:transform .3s;
+  animation:slide-up .55s ease both;
+}
+.demo-card:hover{transform:translateY(-4px);}
+
+.demo-preview{
+  width:100%;height:160px;position:relative;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+}
+.demo-body{padding:18px 20px 22px;}
+.demo-title{font-family:'Orbitron',monospace;font-size:.82rem;font-weight:700;color:#fff;margin-bottom:6px;}
+.demo-desc{font-size:.88rem;color:var(--muted);line-height:1.55;font-weight:600;}
+
+/* HIT PARTICLES preview */
+.hit-preview{background:linear-gradient(135deg,#060f06,#0a1a0a);}
+.hit-center{position:relative;width:64px;height:64px;}
+.hit-player{font-size:2.5rem;position:absolute;inset:0;display:flex;align-items:center;justify-content:center;animation:swing 2s ease infinite;filter:drop-shadow(0 0 12px rgba(74,222,128,.5));}
+.spark{
+  position:absolute;width:8px;height:8px;border-radius:2px;
+  animation:hit-particle 1.2s ease-out infinite;
+  top:50%;left:50%;transform-origin:center;
+}
+.spark:nth-child(1){background:#4ade80;--dx:-28px;--dy:-24px;animation-delay:0s;}
+.spark:nth-child(2){background:#fbbf24;--dx:30px;--dy:-20px;animation-delay:.15s;}
+.spark:nth-child(3){background:#38bdf8;--dx:-22px;--dy:28px;animation-delay:.3s;}
+.spark:nth-child(4){background:#f97316;--dx:26px;--dy:24px;animation-delay:.45s;}
+.spark:nth-child(5){background:#a855f7;--dx:0px;--dy:-34px;animation-delay:.6s;}
+.spark:nth-child(6){background:#ef4444;--dx:34px;--dy:4px;animation-delay:.75s;}
+.spark:nth-child(7){background:#4ade80;--dx:-34px;--dy:4px;animation-delay:.9s;}
+.spark:nth-child(8){background:#fbbf24;--dx:14px;--dy:34px;animation-delay:1.05s;}
+
+/* TARGET HUD preview */
+.target-preview{background:linear-gradient(135deg,#060810,#0d0d1a);}
+.target-hud{
+  width:200px;background:rgba(0,0,0,.7);
+  border:1px solid rgba(74,222,128,.3);border-radius:8px;
+  padding:12px 14px;backdrop-filter:blur(8px);
+}
+.thud-top{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.thud-avatar{width:36px;height:36px;background:linear-gradient(135deg,var(--g),var(--sky));border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;}
+.thud-name{font-family:'Orbitron',monospace;font-size:.65rem;color:#fff;font-weight:700;}
+.thud-dist{font-size:.6rem;color:var(--muted);font-family:'Orbitron',monospace;}
+.thud-hp-label{font-family:'Orbitron',monospace;font-size:.58rem;color:var(--muted);margin-bottom:4px;display:flex;justify-content:space-between;}
+.thud-bar{height:6px;background:#1a2a1a;border-radius:3px;overflow:hidden;}
+.thud-fill{height:100%;background:linear-gradient(90deg,var(--g),#86efac);border-radius:3px;width:65%;animation:bar-fill 1.5s ease both;}
+.thud-armor{display:flex;gap:6px;margin-top:8px;}
+.thud-armor-item{flex:1;height:4px;border-radius:2px;background:linear-gradient(90deg,var(--sky),#7dd3fc);}
+
+/* CAPE preview */
+.cape-preview{background:linear-gradient(135deg,#100010,#1a0028,#100018);}
+.cape-player-wrap{position:relative;}
+.cape-player{font-size:3rem;display:block;filter:drop-shadow(0 0 16px rgba(168,85,247,.7));}
+.cape-wave{
+  position:absolute;right:-10px;top:50%;
+  width:18px;height:40px;
+  background:linear-gradient(135deg,var(--purple),var(--hot));
+  border-radius:2px 6px 6px 2px;
+  transform-origin:left center;
+  animation:swing 1.5s ease-in-out infinite;
+  margin-top:-20px;
+}
+.cape-glow{position:absolute;inset:-20px;background:radial-gradient(circle,rgba(168,85,247,.2),transparent 70%);animation:pulse-g 2s ease infinite;}
+
+/* SCOREBOARD preview */
+.sb-preview{background:linear-gradient(135deg,#060a10,#0a0f1a);}
+.scoreboard{
+  width:200px;background:rgba(0,0,0,.65);
+  border:1px solid rgba(56,189,248,.25);border-radius:6px;
+  overflow:hidden;backdrop-filter:blur(8px);
+}
+.sb-header{background:rgba(56,189,248,.12);padding:8px 12px;font-family:'Orbitron',monospace;font-size:.6rem;color:var(--sky);font-weight:700;letter-spacing:.1em;}
+.sb-row{display:flex;align-items:center;gap:10px;padding:6px 12px;border-bottom:1px solid rgba(255,255,255,.04);}
+.sb-row.me{background:rgba(74,222,128,.08);}
+.sb-rank{font-family:'Orbitron',monospace;font-size:.55rem;color:var(--muted);width:16px;}
+.sb-name{font-size:.78rem;font-weight:700;flex:1;}
+.sb-val{font-family:'Orbitron',monospace;font-size:.6rem;color:var(--gold);}
+
+/* AMBIENT preview */
+.ambient-preview{background:linear-gradient(135deg,#020810,#050d1a,#020d08);overflow:hidden;}
+.amb-particle{position:absolute;border-radius:50%;animation:float linear infinite;}
+
+/* CROSSHAIR preview */
+.crosshair-preview{background:linear-gradient(135deg,#080808,#121212);}
+.crosshair-wrap{position:relative;width:80px;height:80px;display:flex;align-items:center;justify-content:center;}
+.ch-ring{
+  position:absolute;width:60px;height:60px;border-radius:50%;
+  border:2px solid transparent;
+  background:linear-gradient(var(--d),var(--d)) padding-box,
+             conic-gradient(from var(--angle),var(--g),var(--sky),var(--purple),var(--g)) border-box;
+  animation:border-spin 3s linear infinite;
+}
+.ch-center{width:6px;height:6px;background:#fff;border-radius:50%;box-shadow:0 0 6px #fff;}
+.ch-line{position:absolute;background:rgba(255,255,255,.7);}
+.ch-h{width:20px;height:2px;left:-28px;}
+.ch-h2{width:20px;height:2px;right:-28px;}
+.ch-v{width:2px;height:20px;top:-28px;}
+.ch-v2{width:2px;height:20px;bottom:-28px;}
+
+/* ── STATS BARS ── */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px 36px;}
+@media(max-width:560px){.stats-grid{grid-template-columns:1fr;}}
+.stat-i{display:flex;flex-direction:column;gap:7px;}
+.stat-meta{display:flex;justify-content:space-between;font-family:'Orbitron',monospace;font-size:.68rem;}
+.stat-name{color:var(--text);}.stat-val{color:var(--g);}
+.stat-track{height:9px;background:rgba(255,255,255,.04);border-radius:2px;overflow:hidden;border:1px solid rgba(255,255,255,.05);}
+.stat-fill{height:100%;border-radius:2px;animation:bar-fill 1.8s cubic-bezier(.34,1.2,.64,1) both;position:relative;}
+.stat-fill::after{content:'';position:absolute;right:0;top:0;bottom:0;width:4px;background:#fff;filter:blur(2px);}
+
+/* ── PROS & CONS ── */
+.pc-wrap{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+@media(max-width:560px){.pc-wrap{grid-template-columns:1fr;}}
+.pc-card{border-radius:var(--r);padding:26px;position:relative;overflow:hidden;}
+.pc-card.pros{background:linear-gradient(135deg,rgba(74,222,128,.07),rgba(22,163,74,.03));border:1px solid rgba(74,222,128,.22);}
+.pc-card.cons{background:linear-gradient(135deg,rgba(239,68,68,.07),rgba(220,38,38,.03));border:1px solid rgba(239,68,68,.18);}
+.pc-head{font-family:'Press Start 2P',monospace;font-size:.55rem;margin-bottom:18px;display:flex;align-items:center;gap:8px;}
+.pros .pc-head{color:var(--g);}.cons .pc-head{color:var(--red);}
+.pc-list{list-style:none;display:flex;flex-direction:column;gap:11px;}
+.pc-item{display:flex;align-items:flex-start;gap:9px;font-size:.9rem;color:var(--text);font-weight:600;line-height:1.5;animation:slide-left .5s ease both;}
+.cons .pc-item{animation-name:slide-right;}
+.pc-item:nth-child(1){animation-delay:.1s;}.pc-item:nth-child(2){animation-delay:.2s;}.pc-item:nth-child(3){animation-delay:.3s;}.pc-item:nth-child(4){animation-delay:.4s;}.pc-item:nth-child(5){animation-delay:.5s;}.pc-item:nth-child(6){animation-delay:.6s;}
+.pc-dot{flex-shrink:0;width:20px;height:20px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;margin-top:2px;}
+.pros .pc-dot{background:rgba(74,222,128,.18);color:var(--g);}.cons .pc-dot{background:rgba(239,68,68,.18);color:var(--red);}
+
+/* ── DOWNLOAD ── */
+.dl-section{position:relative;z-index:1;padding:90px 20px;text-align:center;overflow:hidden;}
+.dl-bg{position:absolute;inset:0;background:linear-gradient(-45deg,rgba(74,222,128,.06),rgba(56,189,248,.06),rgba(168,85,247,.06),rgba(74,222,128,.06));background-size:400% 400%;animation:gradient-bg 6s ease infinite;}
+.dl-bg::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(74,222,128,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(74,222,128,.05) 1px,transparent 1px);background-size:16px 16px;}
+.dl-blob{position:absolute;width:400px;height:400px;background:radial-gradient(circle,rgba(74,222,128,.12),transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);animation:morph 9s ease infinite;pointer-events:none;}
+.dl-inner{position:relative;z-index:1;max-width:640px;margin:0 auto;}
+.dl-title{font-family:'Press Start 2P',monospace;font-size:clamp(.95rem,3vw,1.7rem);color:#fff;margin-bottom:12px;line-height:1.5;animation:glitch 9s ease infinite;}
+.dl-sub{color:var(--muted);font-size:1rem;margin-bottom:44px;font-weight:600;}
+.dl-btn-wrap{display:inline-block;position:relative;}
+.dl-glow{position:absolute;inset:-24px;background:radial-gradient(ellipse,rgba(74,222,128,.38),transparent 70%);animation:pulse-g 2s ease infinite;pointer-events:none;}
+.btn-big{
+  position:relative;display:inline-flex;align-items:center;gap:14px;
+  padding:22px 56px;font-family:'Press Start 2P',monospace;font-size:clamp(.62rem,2vw,.88rem);
+  color:#000;text-decoration:none;letter-spacing:.05em;overflow:hidden;
+  clip-path:polygon(0 6px,6px 6px,6px 0,calc(100% - 6px) 0,calc(100% - 6px) 6px,100% 6px,100% calc(100% - 6px),calc(100% - 6px) calc(100% - 6px),calc(100% - 6px) 100%,6px 100%,6px calc(100% - 6px),0 calc(100% - 6px));
+  transition:transform .2s,filter .2s;
+}
+.btn-big::before{content:'';position:absolute;inset:0;background:linear-gradient(-45deg,#22c55e,#4ade80,#86efac,#4ade80,#22c55e);background-size:300%;animation:gradient-bg 1.6s ease infinite;}
+.btn-big:hover{transform:translateY(-5px) scale(1.06);filter:brightness(1.2) drop-shadow(0 14px 44px rgba(74,222,128,.7));}
+.btn-big:active{transform:translateY(2px) scale(.97);}
+.btn-big span{position:relative;z-index:1;}
+.dl-meta{margin-top:22px;display:flex;justify-content:center;gap:20px;flex-wrap:wrap;}
+.dl-meta-item{display:flex;align-items:center;gap:6px;font-family:'Orbitron',monospace;font-size:.62rem;color:var(--muted);}
+.dl-meta-item b{color:var(--g);}
+
+/* ── SCROLL SNAP (screenshots) ── */
+.snapper{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:14px;padding-bottom:16px;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:var(--g) transparent;}
+.snapper::-webkit-scrollbar{height:4px;}.snapper::-webkit-scrollbar-thumb{background:var(--g);border-radius:2px;}
+.snap-it{scroll-snap-align:start;flex-shrink:0;width:240px;height:150px;border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-family:'Orbitron',monospace;font-size:.8rem;color:#fff;position:relative;overflow:hidden;border:1px solid var(--border);transition:transform .3s;}
+.snap-it:hover{transform:scale(1.04);}
+.snap-it .snap-lbl{position:absolute;bottom:0;left:0;right:0;padding:8px 12px;background:linear-gradient(transparent,rgba(0,0,0,.8));font-size:.62rem;}
+
+/* ── FOOTER ── */
+footer{position:relative;z-index:1;background:rgba(0,0,0,.5);border-top:1px solid var(--border);padding:40px 20px;text-align:center;}
+.ft-logo{font-family:'Press Start 2P',monospace;font-size:.65rem;color:var(--g);margin-bottom:16px;animation:neon-flicker 9s ease infinite;}
+.ft-links{display:flex;justify-content:center;gap:22px;flex-wrap:wrap;margin-bottom:14px;}
+.ft-link{font-family:'Orbitron',monospace;font-size:.62rem;color:var(--muted);text-decoration:none;transition:color .2s;}
+.ft-link:hover{color:var(--g);}
+.ft-copy{font-size:.7rem;color:rgba(90,122,90,.5);font-family:'Orbitron',monospace;}
+
+/* RESPONSIVE */
+@media(max-width:600px){
+  .feat-grid,.demo-grid{grid-template-columns:1fr;}
+  .counters{grid-template-columns:repeat(3,1fr);}
+  .cnt-num{font-size:1.3rem;}
+  .nav-links .nav-link{display:none;}
+}
+
+</style>
+</head>
+<body>
+
+<div class="particles">
+  <div class="p"></div><div class="p"></div><div class="p"></div><div class="p"></div>
+  <div class="p"></div><div class="p"></div><div class="p"></div><div class="p"></div>
+  <div class="p"></div><div class="p"></div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">⚔ SoupVisuals</a>
+  <div class="nav-links">
+    <a href="#features" class="nav-link">Фичи</a>
+    <a href="#demo" class="nav-link">Демо</a>
+    <a href="#proscons" class="nav-link">Плюсы/Минусы</a>
+    <a href="https://t.me/example" class="nav-cta" target="_blank">Скачать ↗</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="badge"><div class="badge-dot"></div>v3.0.0-beta · Fabric 1.21.4 · АКТИВЕН</div>
+  <span class="hero-icon">⚔️</span>
+  <h1>
+    <span class="h1-1">SOUP VISUALS</span>
+    <span class="h1-2">PVP MOD</span>
+  </h1>
+  <p class="hero-sub">Визуалы для <b>лучшего PvP опыта</b>.<br>Hit-частицы, Target HUD, Cape-эффекты — всё кастомизируй.</p>
+  <div class="type-line">// УДАРЬ ПЕРВЫМ — ВЫЖИВИ ДОЛЬШЕ</div>
+  <div class="cta-wrap">
+    <a href="https://t.me/example" class="btn-dl" target="_blank" rel="noopener">
+      <span>⬇</span><span>СКАЧАТЬ МОД</span>
+    </a>
+    <a href="#demo" class="btn-ghost">Смотреть визуалы ↓</a>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="band">
+  <div class="band-track">
+    <div class="band-item">⚡ Hit Particles <span class="band-sep">✦</span></div>
+    <div class="band-item">🎯 Target HUD <span class="band-sep">✦</span></div>
+    <div class="band-item">🌀 Cape Visuals <span class="band-sep">✦</span></div>
+    <div class="band-item">🔴 Crosshair Ring <span class="band-sep">✦</span></div>
+    <div class="band-item">✨ Ambient Particles <span class="band-sep">✦</span></div>
+    <div class="band-item">📋 Scoreboard HUD <span class="band-sep">✦</span></div>
+    <div class="band-item">🔊 Critical Sounds <span class="band-sep">✦</span></div>
+    <div class="band-item">🎨 Custom Themes <span class="band-sep">✦</span></div>
+    <div class="band-item">👋 Hand Tweaks <span class="band-sep">✦</span></div>
+    <div class="band-item">🤝 Friends List <span class="band-sep">✦</span></div>
+    <!-- repeat -->
+    <div class="band-item">⚡ Hit Particles <span class="band-sep">✦</span></div>
+    <div class="band-item">🎯 Target HUD <span class="band-sep">✦</span></div>
+    <div class="band-item">🌀 Cape Visuals <span class="band-sep">✦</span></div>
+    <div class="band-item">🔴 Crosshair Ring <span class="band-sep">✦</span></div>
+    <div class="band-item">✨ Ambient Particles <span class="band-sep">✦</span></div>
+    <div class="band-item">📋 Scoreboard HUD <span class="band-sep">✦</span></div>
+    <div class="band-item">🔊 Critical Sounds <span class="band-sep">✦</span></div>
+    <div class="band-item">🎨 Custom Themes <span class="band-sep">✦</span></div>
+    <div class="band-item">👋 Hand Tweaks <span class="band-sep">✦</span></div>
+    <div class="band-item">🤝 Friends List <span class="band-sep">✦</span></div>
+  </div>
+</div>
+
+<!-- COUNTERS -->
+<section>
+  <div class="counters">
+    <div class="cnt-card"><span class="cnt-num" id="c1">0</span><div class="cnt-label">Скачиваний</div></div>
+    <div class="cnt-card"><span class="cnt-num" id="c2" style="color:var(--gold)">0</span><div class="cnt-label">Фич в моде</div></div>
+    <div class="cnt-card"><span class="cnt-num" id="c3" style="color:var(--sky)">0</span><div class="cnt-label">Версий MC</div></div>
+  </div>
+
+  <!-- FEATURES -->
+  <div id="features">
+    <div class="stag">ВОЗМОЖНОСТИ</div>
+    <div class="sec-title">Все фичи мода</div>
+  </div>
+
+  <div class="feat-grid">
+    <div class="feat-card" style="animation-delay:.05s">
+      <span class="feat-icon">⚡</span>
+      <div class="feat-title">Hit Particles</div>
+      <div class="feat-desc">Частицы при ударе с полной настройкой — количество, размер, форма, прозрачность, цвет. Обычные и критические — разные эффекты.</div>
+    </div>
+    <div class="feat-card" style="animation-delay:.12s">
+      <span class="feat-icon">🎯</span>
+      <div class="feat-title">Target HUD</div>
+      <div class="feat-desc">Панель цели с HP, бронёй и именем. 3 уникальных стиля рендера. Видишь врага — знаешь всё о нём.</div>
+    </div>
+    <div class="feat-card" style="animation-delay:.19s">
+      <span class="feat-icon">🌀</span>
+      <div class="feat-title">Cape Visuals</div>
+      <div class="feat-desc">Анимированный плащ с кастомными эффектами. Стили Soup и Portal. Выглядишь как топ-игрок с первых секунд.</div>
+    </div>
+    <div class="feat-card" style="animation-delay:.26s">
+      <span class="feat-icon">🔴</span>
+      <div class="feat-title">Кольцевой Crosshair</div>
+      <div class="feat-desc">Анимированный кольцевой прицел с несколькими вариантами индикаторов. Спин-вариации и трекинг цели.</div>
+    </div>
+    <div class="feat-card" style="animation-delay:.33s">
+      <span class="feat-icon">✨</span>
+      <div class="feat-title">Ambient Particles</div>
+      <div class="feat-desc">Light / Bright / Fog / Time / Ambient — 5 режимов частиц окружения. Мир выглядит живым и атмосферным.</div>
+    </div>
+    <div class="feat-card" style="animation-delay:.40s">
+      <span class="feat-icon">📋</span>
+      <div class="feat-title">Scoreboard & Tab HUD</div>
+      <div class="feat-desc">Переработанный скорборд и таб-лист с подсветкой элементов. Видишь друзей в толпе мгновенно.</div>
+    </div>
+    <div class="feat-card" style="animation-delay:.47s">
+      <span class="feat-icon">🔊</span>
+      <div class="feat-title">Critical Hit Sounds</div>
+      <div class="feat-desc">Кастомные звуки при крите, настройка громкости, тип звука, случайный питч. Каждый удар — это ощущение.</div>
+    </div>
+    <div class="feat-card" style="animation-delay:.54s">
+      <span class="feat-icon">🎨</span>
+      <div class="feat-title">Theme System</div>
+      <div class="feat-desc">Создавай собственные темы интерфейса или используй готовые. Кастомизация основного и вторичного цветов.</div>
+    </div>
+    <div class="feat-card" style="animation-delay:.61s">
+      <span class="feat-icon">👋</span>
+      <div class="feat-title">Hand Tweaks</div>
+      <div class="feat-desc">Настройка анимации, положения и размера рук. Swing-анимация при ударе. Выглядит как на видосах топ-ютуберов.</div>
+    </div>
+    <div class="feat-card" style="animation-delay:.68s">
+      <span class="feat-icon">🤝</span>
+      <div class="feat-title">Friends List</div>
+      <div class="feat-desc">Система друзей с шифрованием. Работает на всех серверах. Подсветка друзей в таб-листе и толпе игроков.</div>
+    </div>
+    <div class="feat-card" style="animation-delay:.75s">
+      <span class="feat-icon">🔮</span>
+      <div class="feat-title">Totem Particles</div>
+      <div class="feat-desc">Эффекты при активации тотема бессмертия. Эффект Pearl Follow — частицы летят за эндерпёрлой.</div>
+    </div>
+    <div class="feat-card" style="animation-delay:.82s">
+      <span class="feat-icon">⚙️</span>
+      <div class="feat-title">Полный HUD-пакет</div>
+      <div class="feat-desc">Armor / Boss Bars / Hotkeys / Potions / Cooldowns / Module List / Inventory HUD / Watermark — всё в одном.</div>
+    </div>
+  </div>
+
+  <div class="tags">
+    <div class="tag green" data-tip="Fabric 1.20.1 — 1.21.4">⬡ Fabric</div>
+    <div class="tag blue"  data-tip="Только на клиенте, не нужен на сервере">💻 Client-side</div>
+    <div class="tag gold"  data-tip="Открыть меню: нажми 0">⌨ Клавиша 0</div>
+    <div class="tag purple" data-tip="Работает на всех серверах">🌐 All Servers</div>
+    <div class="tag green" data-tip="700 КБ — почти ничего не весит">⚡ 700 КБ</div>
+    <div class="tag red"   data-tip="Не даёт FPS — только визуалы">⚠ No FPS Boost</div>
+    <div class="tag blue"  data-tip="Совместим с ModMenu">🔧 ModMenu</div>
+    <div class="tag purple" data-tip="Система друзей с шифрованием">🔒 Friends Encrypt</div>
+  </div>
+</section>
+
+<!-- VISUAL DEMOS -->
+<section id="demo">
+  <div class="stag">ВИЗУАЛЬНОЕ ДЕМО</div>
+  <div class="sec-title">Как это выглядит</div>
+
+  <div class="demo-grid">
+
+    <!-- HIT PARTICLES -->
+    <div class="demo-card" style="animation-delay:.05s">
+      <div class="demo-preview hit-preview">
+        <div class="hit-center">
+          <div class="hit-player">🧍</div>
+          <div class="spark"></div><div class="spark"></div><div class="spark"></div>
+          <div class="spark"></div><div class="spark"></div><div class="spark"></div>
+          <div class="spark"></div><div class="spark"></div>
+        </div>
+      </div>
+      <div class="demo-body">
+        <div class="demo-title">Hit Particles</div>
+        <div class="demo-desc">Анимированные частицы разлетаются при каждом ударе. Настраивай цвет, размер, количество и форму.</div>
+      </div>
+    </div>
+
+    <!-- TARGET HUD -->
+    <div class="demo-card" style="animation-delay:.12s">
+      <div class="demo-preview target-preview">
+        <div class="target-hud">
+          <div class="thud-top">
+            <div class="thud-avatar">🧟</div>
+            <div>
+              <div class="thud-name">Player_228</div>
+              <div class="thud-dist">12.4м · уровень 37</div>
+            </div>
+          </div>
+          <div class="thud-hp-label"><span>❤ HP</span><span style="color:var(--g)">13 / 20</span></div>
+          <div class="thud-bar"><div class="thud-fill"></div></div>
+          <div class="thud-armor">
+            <div class="thud-armor-item"></div>
+            <div class="thud-armor-item" style="width:50%;"></div>
+            <div class="thud-armor-item" style="background:linear-gradient(90deg,var(--gold),#fde68a);"></div>
+            <div class="thud-armor-item"></div>
+          </div>
+        </div>
+      </div>
+      <div class="demo-body">
+        <div class="demo-title">Target HUD</div>
+        <div class="demo-desc">Видишь HP, броню и расстояние до цели в реальном времени. 3 стиля рендера на выбор.</div>
+      </div>
+    </div>
+
+    <!-- CAPE -->
+    <div class="demo-card" style="animation-delay:.19s">
+      <div class="demo-preview cape-preview">
+        <div class="cape-player-wrap">
+          <div class="cape-glow"></div>
+          <span class="cape-player">🧙</span>
+          <div class="cape-wave"></div>
+        </div>
+      </div>
+      <div class="demo-body">
+        <div class="demo-title">Cape Visuals</div>
+        <div class="demo-desc">Анимированный плащ со свечением. Стили Soup и Portal. Выделяйся среди всех на сервере.</div>
+      </div>
+    </div>
+
+    <!-- SCOREBOARD -->
+    <div class="demo-card" style="animation-delay:.26s">
+      <div class="demo-preview sb-preview">
+        <div class="scoreboard">
+          <div class="sb-header">⚔ KILLS</div>
+          <div class="sb-row"><div class="sb-rank">1</div><div class="sb-name" style="color:var(--gold)">xXKiller228</div><div class="sb-val">47</div></div>
+          <div class="sb-row me"><div class="sb-rank">2</div><div class="sb-name" style="color:var(--g)">ТЫ</div><div class="sb-val">31</div></div>
+          <div class="sb-row"><div class="sb-rank">3</div><div class="sb-name">noobik2012</div><div class="sb-val">19</div></div>
+          <div class="sb-row"><div class="sb-rank">4</div><div class="sb-name">Vasya_Pro</div><div class="sb-val">12</div></div>
+        </div>
+      </div>
+      <div class="demo-body">
+        <div class="demo-title">Scoreboard HUD</div>
+        <div class="demo-desc">Переработанный скорборд с подсветкой. Ты и твои друзья всегда выделены.</div>
+      </div>
+    </div>
+
+    <!-- AMBIENT -->
+    <div class="demo-card" style="animation-delay:.33s">
+      <div class="demo-preview ambient-preview">
+        <!-- JS рисует частицы -->
+        <canvas id="ambCanvas" width="280" height="160" style="position:absolute;inset:0;width:100%;height:100%;"></canvas>
+        <div style="position:relative;z-index:1;font-family:'Orbitron',monospace;font-size:.7rem;color:rgba(74,222,128,.6);">✨ Ambient</div>
+      </div>
+      <div class="demo-body">
+        <div class="demo-title">Ambient Particles</div>
+        <div class="demo-desc">5 режимов фоновых частиц: Light, Bright, Fog, Time, Ambient. Мир дышит вместе с тобой.</div>
+      </div>
+    </div>
+
+    <!-- CROSSHAIR -->
+    <div class="demo-card" style="animation-delay:.40s">
+      <div class="demo-preview crosshair-preview">
+        <div class="crosshair-wrap">
+          <div class="ch-ring"></div>
+          <div class="ch-line ch-h" style="position:absolute;left:2px;top:50%;margin-top:-1px;"></div>
+          <div class="ch-line ch-h2" style="position:absolute;right:2px;top:50%;margin-top:-1px;"></div>
+          <div class="ch-line ch-v" style="position:absolute;top:2px;left:50%;margin-left:-1px;"></div>
+          <div class="ch-line ch-v2" style="position:absolute;bottom:2px;left:50%;margin-left:-1px;"></div>
+          <div class="ch-center"></div>
+        </div>
+      </div>
+      <div class="demo-body">
+        <div class="demo-title">Ring Crosshair</div>
+        <div class="demo-desc">Крутящийся кольцевой прицел с градиентом. Несколько вариантов и стилей анимации.</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- SCROLL SNAP "screenshots" -->
+<section>
+  <div class="stag">СТИЛИ</div>
+  <div class="sec-title">Готовые темы (свайп →)</div>
+  <div class="snapper">
+    <div class="snap-it" style="background:linear-gradient(135deg,#060f06,#0a2010)"><span style="font-size:2rem">🌿</span><div class="snap-lbl">Стиль: Soup</div></div>
+    <div class="snap-it" style="background:linear-gradient(135deg,#0a0028,#1a0040)"><span style="font-size:2rem">🌀</span><div class="snap-lbl">Стиль: Portal</div></div>
+    <div class="snap-it" style="background:linear-gradient(135deg,#1a0800,#3d1500)"><span style="font-size:2rem">🔥</span><div class="snap-lbl">Стиль: Flame</div></div>
+    <div class="snap-it" style="background:linear-gradient(135deg,#000d1a,#00233d)"><span style="font-size:2rem">🌊</span><div class="snap-lbl">Стиль: Ocean</div></div>
+    <div class="snap-it" style="background:linear-gradient(135deg,#1a001a,#380038)"><span style="font-size:2rem">💜</span><div class="snap-lbl">Стиль: Purple</div></div>
+    <div class="snap-it" style="background:linear-gradient(135deg,#1a1400,#3d3000)"><span style="font-size:2rem">⭐</span><div class="snap-lbl">Стиль: Gold</div></div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section>
+  <div class="stag">РЕЙТИНГ</div>
+  <div class="sec-title">Объективная оценка</div>
+  <div class="stats-grid">
+    <div class="stat-i">
+      <div class="stat-meta"><span class="stat-name">Количество фич</span><span class="stat-val">98%</span></div>
+      <div class="stat-track"><div class="stat-fill" style="width:98%;background:linear-gradient(90deg,var(--g),#86efac);animation-delay:.1s"></div></div>
+    </div>
+    <div class="stat-i">
+      <div class="stat-meta"><span class="stat-name">Кастомизация</span><span class="stat-val">95%</span></div>
+      <div class="stat-track"><div class="stat-fill" style="width:95%;background:linear-gradient(90deg,var(--purple),var(--sky));animation-delay:.2s"></div></div>
+    </div>
+    <div class="stat-i">
+      <div class="stat-meta"><span class="stat-name">Качество визуалов</span><span class="stat-val">93%</span></div>
+      <div class="stat-track"><div class="stat-fill" style="width:93%;background:linear-gradient(90deg,var(--gold),var(--hot));animation-delay:.3s"></div></div>
+    </div>
+    <div class="stat-i">
+      <div class="stat-meta"><span class="stat-name">Совместимость</span><span class="stat-val">89%</span></div>
+      <div class="stat-track"><div class="stat-fill" style="width:89%;animation-delay:.4s"></div></div>
+    </div>
+    <div class="stat-i">
+      <div class="stat-meta"><span class="stat-name">Стабильность</span><span class="stat-val">85%</span></div>
+      <div class="stat-track"><div class="stat-fill" style="width:85%;background:linear-gradient(90deg,var(--sky),#7dd3fc);animation-delay:.5s"></div></div>
+    </div>
+    <div class="stat-i">
+      <div class="stat-meta"><span class="stat-name">PvP-преимущество</span><span class="stat-val">100%</span></div>
+      <div class="stat-track"><div class="stat-fill" style="width:100%;background:linear-gradient(90deg,var(--g),var(--gold),var(--hot));animation-delay:.6s"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PROS & CONS -->
+<section id="proscons">
+  <div class="stag">ЧЕСТНО</div>
+  <div class="sec-title">Плюсы и минусы</div>
+  <div class="pc-wrap">
+
+    <div class="pc-card pros">
+      <div class="pc-head">✅ ПЛЮСЫ</div>
+      <ul class="pc-list">
+        <li class="pc-item"><div class="pc-dot">+</div>Hit-частицы с полной настройкой: цвет, размер, форма, прозрачность</li>
+        <li class="pc-item"><div class="pc-dot">+</div>Target HUD показывает HP и броню врага в реальном времени</li>
+        <li class="pc-item"><div class="pc-dot">+</div>Анимированный плащ — стили Soup и Portal из коробки</li>
+        <li class="pc-item"><div class="pc-dot">+</div>Кольцевой прицел с кастомными вариантами и анимацией</li>
+        <li class="pc-item"><div class="pc-dot">+</div>5 режимов Ambient-частиц делают мир живым</li>
+        <li class="pc-item"><div class="pc-dot">+</div>Звуки крита с настройкой типа, громкости и питча</li>
+        <li class="pc-item"><div class="pc-dot">+</div>Система друзей с шифрованием — работает на всех серверах</li>
+        <li class="pc-item"><div class="pc-dot">+</div>Меню открывается одной кнопкой 0 — удобно в бою</li>
+      </ul>
+    </div>
+
+    <div class="pc-card cons">
+      <div class="pc-head">❌ МИНУСЫ</div>
+      <ul class="pc-list">
+        <li class="pc-item"><div class="pc-dot">−</div>FPS не увеличивает — только визуалы, без оптимизации</li>
+        <li class="pc-item"><div class="pc-dot">−</div>Только Fabric — Forge не поддерживается вообще</li>
+        <li class="pc-item"><div class="pc-dot">−</div>Слабые ПК могут просесть на эффектах, надо настраивать конфиг</li>
+        <li class="pc-item"><div class="pc-dot">−</div>Target HUD может мерцать при быстром движении камеры</li>
+        <li class="pc-item"><div class="pc-dot">−</div>Старые версии мода заблокированы на серверах</li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<!-- DOWNLOAD -->
+<div class="dl-section" id="download">
+  <div class="dl-bg"></div>
+  <div class="dl-blob"></div>
+  <div class="dl-inner">
+    <div class="dl-title">ГОТОВ ДОМИНИРОВАТЬ?</div>
+    <p class="dl-sub">Скачай — настрой за 2 минуты — побеждай.</p>
+    <div class="dl-btn-wrap">
+      <div class="dl-glow"></div>
+      <a href="https://t.me/example" class="btn-big" target="_blank" rel="noopener">
+        <span style="font-size:1.3rem">⚡</span>
+        <span>СКАЧАТЬ В TELEGRAM</span>
+      </a>
+    </div>
+    <div class="dl-meta">
+      <div class="dl-meta-item">📦 Размер: <b>700 КБ</b></div>
+      <div class="dl-meta-item">🎮 Fabric: <b>1.21.4</b></div>
+      <div class="dl-meta-item">⌨ Меню: <b>клавиша 0</b></div>
+      <div class="dl-meta-item">❤️ Скачиваний: <b>642K+</b></div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="ft-logo">⚔ SOUPVISUALS MOD</div>
+  <div class="ft-links">
+    <a href="https://t.me/example" class="ft-link">Telegram</a>
+    <a href="#features" class="ft-link">Фичи</a>
+    <a href="#demo" class="ft-link">Демо</a>
+    <a href="#proscons" class="ft-link">Плюсы/Минусы</a>
+    <a href="#download" class="ft-link">Скачать</a>
+  </div>
+  <div class="ft-copy">© 2025 SoupVisuals · Fabric Mod · Сделано с ❤️</div>
+</footer>
+
+<script>
+// Counters
+function animCnt(el, target, suffix='', dur=2000) {
+  let s=0, step=target/(dur/16);
+  const t=setInterval(()=>{
+    s+=step; if(s>=target){s=target;clearInterval(t);}
+    const v=Math.floor(s);
+    el.textContent=v>=1000?(v/1000).toFixed(1)+'K'+suffix:v+suffix;
+  },16);
+}
+const obs=new IntersectionObserver(e=>{
+  e.forEach(en=>{
+    if(en.isIntersecting){
+      animCnt(document.getElementById('c1'),642900);
+      animCnt(document.getElementById('c2'),30,'+');
+      animCnt(document.getElementById('c3'),5);
+      obs.disconnect();
+    }
+  });
+},{threshold:.4});
+obs.observe(document.getElementById('c1'));
+
+// Ambient Canvas
+const canvas=document.getElementById('ambCanvas');
+if(canvas){
+  const ctx=canvas.getContext('2d');
+  const pts=Array.from({length:35},()=>({
+    x:Math.random()*280,y:Math.random()*160,
+    vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.4,
+    r:Math.random()*2+.5,
+    c:['#4ade80','#38bdf8','#a855f7','#fbbf24','#f97316'][Math.floor(Math.random()*5)],
+    a:Math.random()*.7+.2
+  }));
+  function drawAmb(){
+    ctx.clearRect(0,0,280,160);
+    pts.forEach(p=>{
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.x<0)p.x=280; if(p.x>280)p.x=0;
+      if(p.y<0)p.y=160; if(p.y>160)p.y=0;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=p.c; ctx.globalAlpha=p.a; ctx.fill();
+    });
+    ctx.globalAlpha=1;
+    requestAnimationFrame(drawAmb);
+  }
+  drawAmb();
+}
+
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    const t=document.querySelector(a.getAttribute('href'));
+    if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth',block:'start'});}
+  });
+});
+</script>
+</body>
+</html>
