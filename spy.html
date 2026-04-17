@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🕵️ Шпион | Telegram Mini App</title>
+    <!-- Telegram Web App SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, sans-serif;
+            background: var(--tg-theme-bg-color, #1a1a2e);
+            color: var(--tg-theme-text-color, #eee);
+            padding: 16px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background 0.2s, color 0.2s;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--tg-theme-hint-color, #333);
+        }
+        .profile-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--tg-theme-button-color, #0f3460);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 20px;
+            color: var(--tg-theme-button-text-color, white);
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+        .profile-info {
+            flex: 1;
+        }
+        .profile-name {
+            font-weight: 600;
+            font-size: 18px;
+        }
+        .profile-username {
+            color: var(--tg-theme-hint-color, #888);
+            font-size: 14px;
+        }
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .card {
+            background: var(--tg-theme-secondary-bg-color, #16213e);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .btn {
+            background: var(--tg-theme-button-color, #0f3460);
+            color: var(--tg-theme-button-text-color, white);
+            border: none;
+            border-radius: 14px;
+            padding: 14px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: opacity 0.2s;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn:active {
+            opacity: 0.8;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid var(--tg-theme-button-color, #0f3460);
+            color: var(--tg-theme-button-color, #0f3460);
+        }
+        .btn-danger {
+            background: #e94560;
+            border-color: #e94560;
+            color: white;
+        }
+        .players-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .player-badge {
+            background: var(--tg-theme-bg-color, #1a1a2e);
+            padding: 12px 8px;
+            border-radius: 16px;
+            text-align: center;
+            border: 1px solid var(--tg-theme-hint-color, #333);
+        }
+        .player-name {
+            font-weight: 500;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .player-role {
+            font-size: 11px;
+            color: var(--tg-theme-hint-color, #888);
+        }
+        .host-badge {
+            color: gold;
+            margin-left: 4px;
+        }
+        .location-box {
+            background: var(--tg-theme-bg-color, #1a1a2e);
+            padding: 20px;
+            border-radius: 20px;
+            text-align: center;
+            margin: 15px 0;
+            border: 2px dashed var(--tg-theme-hint-color, #444);
+        }
+        .location-name {
+            font-size: 28px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .role-name {
+            font-size: 20px;
+            margin-top: 10px;
+            color: var(--tg-theme-accent-text-color, #ffd700);
+        }
+        .spy-highlight {
+            color: #e94560;
+            font-weight: 700;
+        }
+        .timer {
+            font-size: 36px;
+            font-weight: 700;
+            text-align: center;
+            margin: 10px 0;
+            font-variant-numeric: tabular-nums;
+        }
+        .info-text {
+            text-align: center;
+            color: var(--tg-theme-hint-color, #aaa);
+            margin: 10px 0;
+        }
+        .flex-row {
+            display: flex;
+            gap: 10px;
+        }
+        .flex-row .btn {
+            flex: 1;
+        }
+        .hidden {
+            display: none !important;
+        }
+        .game-id {
+            font-family: monospace;
+            background: var(--tg-theme-bg-color, #1a1a2e);
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 14px;
+            text-align: center;
+            margin: 10px 0;
+        }
+        .hint {
+            font-size: 13px;
+            color: var(--tg-theme-hint-color, #888);
+            margin-top: 8px;
+        }
+        .location-list {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin: 15px 0;
+        }
+        .loc-option {
+            background: var(--tg-theme-bg-color, #1a1a2e);
+            padding: 10px 5px;
+            border-radius: 12px;
+            font-size: 12px;
+            text-align: center;
+            border: 1px solid var(--tg-theme-hint-color, #444);
+            cursor: pointer;
+        }
+        .loc-option.selected {
+            border: 2px solid var(--tg-theme-button-color, #0f3460);
+            background: var(--tg-theme-secondary-bg-color, #16213e);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="profile-avatar" id="profileAvatar">🕵️</div>
+        <div class="profile-info">
+            <div class="profile-name" id="profileName">Игрок</div>
+            <div class="profile-username" id="profileUsername">@username</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Главное меню -->
+        <div id="mainMenu" class="card">
+            <h2 style="margin-bottom: 15px;">🕵️ Игра Шпион</h2>
+            <p style="margin-bottom: 20px; color: var(--tg-theme-hint-color);">Найдите шпиона или останьтесь незамеченным!</p>
+            
+            <button class="btn" onclick="app.createGame()">🎮 Создать игру</button>
+            
+            <div style="margin: 20px 0;">
+                <label style="display: block; margin-bottom: 8px;">🔑 Присоединиться по коду:</label>
+                <div class="flex-row">
+                    <input type="text" id="joinGameIdInput" placeholder="Код игры" maxlength="6" style="flex: 1; padding: 14px; border-radius: 14px; border: none; background: var(--tg-theme-bg-color); color: var(--tg-theme-text-color); font-size: 16px; text-transform: uppercase;">
+                    <button class="btn" style="width: auto; margin: 0;" onclick="app.joinGame()">Войти</button>
+                </div>
+            </div>
+            
+            <button class="btn btn-outline" onclick="app.shareBot()">📤 Поделиться с друзьями</button>
+            
+            <p class="hint">Играйте с друзьями в группах Telegram — просто отправьте ссылку на бота в чат!</p>
+        </div>
+
+        <!-- Лобби -->
+        <div id="lobbyScreen" class="card hidden">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2>🎲 Лобби</h2>
+                <button class="btn btn-outline" style="width: auto; padding: 8px 16px;" onclick="app.leaveLobby()">Выйти</button>
+            </div>
+            
+            <div class="game-id" id="gameIdDisplay">КОД: ------</div>
+            <button class="btn-outline" style="padding: 8px; margin-bottom: 15px; width: 100%; border-radius: 10px;" onclick="app.copyGameId()">📋 Копировать код</button>
+            
+            <h3>Игроки (<span id="playerCount">0</span>/8)</h3>
+            <div id="playersList" class="players-grid"></div>
+            
+            <div id="hostControls" class="hidden">
+                <label style="display: block; margin: 15px 0 8px;">📍 Выберите локацию:</label>
+                <div id="locationSelector" class="location-list"></div>
+                
+                <button class="btn" id="startGameBtn" onclick="app.startGame()" disabled>🚀 Начать игру</button>
+            </div>
+            
+            <p class="info-text" id="waitingMessage">Ожидание игроков...</p>
+        </div>
+
+        <!-- Экран игры -->
+        <div id="gameScreen" class="card hidden">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h2>🎮 Игра идёт</h2>
+                <button class="btn btn-outline" style="width: auto; padding: 8px 16px;" onclick="app.showRole()">👁️ Моя роль</button>
+            </div>
+            
+            <div class="timer" id="gameTimer">05:00</div>
+            
+            <div id="gameInfoPanel">
+                <!-- Здесь будет показываться роль/локация -->
+            </div>
+            
+            <div class="players-grid" id="gamePlayersList"></div>
+            
+            <div class="flex-row">
+                <button class="btn btn-danger" onclick="app.endGame()">🏁 Завершить игру</button>
+                <button class="btn btn-outline" onclick="app.votePanel()">🗳️ Голосование</button>
+            </div>
+        </div>
+
+        <!-- Голосование -->
+        <div id="voteScreen" class="card hidden">
+            <h3>🗳️ Голосование</h3>
+            <p>Кого вы подозреваете?</p>
+            <div id="votePlayersList" class="players-grid" style="margin: 20px 0;"></div>
+            <button class="btn btn-outline" onclick="app.closeVote()">Отмена</button>
+        </div>
+    </div>
+
+    <script>
+        // Инициализация Telegram Web App
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // Раскрыть на весь экран
+        tg.ready();
+        
+        // Настройка темы
+        document.body.style.backgroundColor = 'var(--tg-theme-bg-color)';
+        
+        // Локации и роли
+        const LOCATIONS = [
+            { name: "🛳️ Пиратский корабль", roles: ["Капитан", "Боцман", "Юнга", "Кок", "Штурман", "Матрос"] },
+            { name: "🏥 Больница", roles: ["Хирург", "Медсестра", "Пациент", "Терапевт", "Регистратор"] },
+            { name: "🏫 Школа", roles: ["Учитель", "Директор", "Ученик", "Охранник", "Библиотекарь"] },
+            { name: "🍔 Ресторан", roles: ["Шеф-повар", "Официант", "Посетитель", "Бармен", "Уборщик"] },
+            { name: "🚀 Космическая станция", roles: ["Командир", "Инженер", "Биолог", "Связист", "Доктор"] },
+            { name: "🏦 Банк", roles: ["Управляющий", "Кассир", "Охранник", "Клиент", "Инкассатор"] }
+        ];
+
+        // Состояние приложения
+        const app = {
+            user: null,
+            currentGame: null,
+            playerId: null,
+            
+            init() {
+                // Получаем данные пользователя из Telegram
+                if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                    this.user = tg.initDataUnsafe.user;
+                    document.getElementById('profileName').textContent = this.user.first_name + (this.user.last_name ? ' ' + this.user.last_name : '');
+                    document.getElementById('profileUsername').textContent = this.user.username ? '@' + this.user.username : 'TG User';
+                    
+                    const avatar = document.getElementById('profileAvatar');
+                    avatar.textContent = this.user.first_name.charAt(0).toUpperCase();
+                    if (this.user.photo_url) {
+                        avatar.style.backgroundImage = `url(${this.user.photo_url})`;
+                        avatar.style.backgroundSize = 'cover';
+                        avatar.textContent = '';
+                    }
+                } else {
+                    // Режим разработки / отладка
+                    console.log("Debug mode: используем тестового пользователя");
+                    this.user = { id: 123456, first_name: "Игрок", username: "player" };
+                    document.getElementById('profileName').textContent = "Игрок Тест";
+                    document.getElementById('profileUsername').textContent = "@test";
+                }
+                this.playerId = this.user.id.toString();
+                
+                // Загружаем сохранённую игру из localStorage
+                this.loadState();
+            },
+            
+            // Создание новой игры
+            createGame() {
+                const gameId = Math.random().toString(36).substring(2, 8).toUpperCase();
+                const game = {
+                    id: gameId,
+                    host: this.playerId,
+                    players: [{
+                        id: this.playerId,
+                        name: this.user.first_name,
+                        username: this.user.username || '',
+                        isHost: true
+                    }],
+                    status: 'lobby', // lobby, playing, voting, ended
+                    location: null,
+                    roles: [],
+                    spies: [],
+                    createdAt: Date.now()
+                };
+                
+                this.currentGame = game;
+                this.saveGameToStorage(game);
+                this.showLobby();
+                
+                tg.HapticFeedback.notification('success');
+            },
+            
+            // Присоединение к игре
+            joinGame() {
+                const gameId = document.getElementById('joinGameIdInput').value.trim().toUpperCase();
+                if (!gameId) {
+                    tg.showAlert('Введите код игры');
+                    return;
+                }
+                
+                const game = this.getGameFromStorage(gameId);
+                if (!game) {
+                    tg.showAlert('Игра не найдена');
+                    return;
+                }
+                
+                if (game.status !== 'lobby') {
+                    tg.showAlert('Игра уже началась');
+                    return;
+                }
+                
+                const existingPlayer = game.players.find(p => p.id === this.playerId);
+                if (existingPlayer) {
+                    // Уже в игре
+                    this.currentGame = game;
+                    this.showLobby();
+                    return;
+                }
+                
+                if (game.players.length >= 8) {
+                    tg.showAlert('Лобби заполнено (макс. 8 игроков)');
+                    return;
+                }
+                
+                game.players.push({
+                    id: this.playerId,
+                    name: this.user.first_name,
+                    username: this.user.username || '',
+                    isHost: false
+                });
+                
+                this.currentGame = game;
+                this.saveGameToStorage(game);
+                this.showLobby();
+                
+                tg.HapticFeedback.notification('success');
+            },
+            
+            // Показать лобби
+            showLobby() {
+                document.getElementById('mainMenu').classList.add('hidden');
+                document.getElementById('lobbyScreen').classList.remove('hidden');
+                document.getElementById('gameScreen').classList.add('hidden');
+                document.getElementById('voteScreen').classList.add('hidden');
+                
+                this.updateLobbyUI();
+                this.startPolling(); // Псевдо-real-time обновления
+            },
+            
+            updateLobbyUI() {
+                const game = this.currentGame;
+                if (!game) return;
+                
+                document.getElementById('gameIdDisplay').textContent = `🔑 КОД: ${game.id}`;
+                document.getElementById('playerCount').textContent = game.players.length;
+                
+                const playersList = document.getElementById('playersList');
+                playersList.innerHTML = '';
+                
+                game.players.forEach(p => {
+                    const div = document.createElement('div');
+                    div.className = 'player-badge';
+                    div.innerHTML = `
+                        <div class="player-name">${p.name} ${p.isHost ? '<span class="host-badge">👑</span>' : ''}</div>
+                        <div class="player-role">${p.id === this.playerId ? 'Вы' : ''}</div>
+                    `;
+                    playersList.appendChild(div);
+                });
+                
+                // Показать контролы хоста
+                const isHost = game.host === this.playerId;
+                document.getElementById('hostControls').classList.toggle('hidden', !isHost);
+                
+                if (isHost) {
+                    this.renderLocationSelector();
+                    const startBtn = document.getElementById('startGameBtn');
+                    startBtn.disabled = game.players.length < 3;
+                }
+                
+                const waitingMsg = document.getElementById('waitingMessage');
+                if (isHost) {
+                    waitingMsg.textContent = game.players.length < 3 ? 'Минимум 3 игрока для начала' : 'Можно начинать!';
+                } else {
+                    waitingMsg.textContent = 'Ожидание хоста...';
+                }
+            },
+            
+            renderLocationSelector() {
+                const container = document.getElementById('locationSelector');
+                container.innerHTML = '';
+                
+                LOCATIONS.forEach((loc, idx) => {
+                    const div = document.createElement('div');
+                    div.className = 'loc-option' + (this.currentGame.location === idx ? ' selected' : '');
+                    div.textContent = loc.name;
+                    div.onclick = () => {
+                        this.currentGame.location = idx;
+                        this.renderLocationSelector();
+                        this.saveGameToStorage(this.currentGame);
+                    };
+                    container.appendChild(div);
+                });
+            },
+            
+            // Начать игру
+            startGame() {
+                const game = this.currentGame;
+                if (game.host !== this.playerId) {
+                    tg.showAlert('Только хост может начать игру');
+                    return;
+                }
+                
+                if (game.players.length < 3) {
+                    tg.showAlert('Минимум 3 игрока');
+                    return;
+                }
+                
+                if (game.location === null) {
+                    tg.showAlert('Выберите локацию');
+                    return;
+                }
+                
+                // Распределяем роли
+                const locationData = LOCATIONS[game.location];
+                const roles = [...locationData.roles];
+                
+                // Перемешиваем роли
+                for (let i = roles.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [roles[i], roles[j]] = [roles[j], roles[i]];
+                }
+                
+                // Определяем количество шпионов
+                const playerCount = game.players.length;
+                let spyCount = 1;
+                if (playerCount >= 6) spyCount = 2;
+                if (playerCount >= 8) spyCount = 3;
+                
+                game.spies = [];
+                const playerIds = game.players.map(p => p.id);
+                for (let i = 0; i < spyCount; i++) {
+                    const randomIndex = Math.floor(Math.random() * playerIds.length);
+                    game.spies.push(playerIds[randomIndex]);
+                    playerIds.splice(randomIndex, 1);
+                }
+                
+                game.roles = {};
+                game.players.forEach((p, idx) => {
+                    if (game.spies.includes(p.id)) {
+                        game.roles[p.id] = { type: 'spy', role: null };
+                    } else {
+                        game.roles[p.id] = { type: 'agent', role: roles[idx % roles.length] };
+                    }
+                });
+                
+                game.status = 'playing';
+                game.startedAt = Date.now();
+                game.duration = 300; // 5 минут в секундах
+                
+                this.saveGameToStorage(game);
+                this.showGameScreen();
+                
+                tg.HapticFeedback.impact('heavy');
+            },
+            
+            showGameScreen() {
+                document.getElementById('mainMenu').classList.add('hidden');
+                document.getElementById('lobbyScreen').classList.add('hidden');
+                document.getElementById('gameScreen').classList.remove('hidden');
+                document.getElementById('voteScreen').classList.add('hidden');
+                
+                this.updateGameUI();
+                this.startGameTimer();
+                this.showRole();
+            },
+            
+            updateGameUI() {
+                const game = this.currentGame;
+                if (!game) return;
+                
+                // Обновить таймер
+                const elapsed = Math.floor((Date.now() - game.startedAt) / 1000);
+                const remaining = Math.max(0, game.duration - elapsed);
+                const minutes = Math.floor(remaining / 60);
+                const seconds = remaining % 60;
+                document.getElementById('gameTimer').textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (remaining <= 0) {
+                    this.endGame();
+                }
+                
+                // Список игроков
+                const playersList = document.getElementById('gamePlayersList');
+                playersList.innerHTML = '';
+                game.players.forEach(p => {
+                    const div = document.createElement('div');
+                    div.className = 'player-badge';
+                    const isSpy = game.spies.includes(p.id);
+                    div.innerHTML = `
+                        <div class="player-name">${p.name}</div>
+                        <div class="player-role">${p.id === this.playerId ? 'Вы' : (isSpy && game.status === 'ended' ? '🕵️ Шпион' : '')}</div>
+                    `;
+                    playersList.appendChild(div);
+                });
+            },
+            
+            showRole() {
+                const game = this.currentGame;
+                if (!game || game.status !== 'playing') return;
+                
+                const myRole = game.roles[this.playerId];
+                const locationData = LOCATIONS[game.location];
+                
+                const panel = document.getElementById('gameInfoPanel');
+                
+                if (myRole.type === 'spy') {
+                    panel.innerHTML = `
+                        <div class="location-box">
+                            <div class="spy-highlight">🕵️ ВЫ ШПИОН!</div>
+                            <p style="margin-top: 15px;">Ваша задача — вычислить локацию и не быть раскрытым.</p>
+                            <p style="margin-top: 10px;">Слушайте вопросы других игроков!</p>
+                        </div>
+                    `;
+                } else {
+                    panel.innerHTML = `
+                        <div class="location-box">
+                            <div class="location-name">${locationData.name}</div>
+                            <div class="role-name">${myRole.role}</div>
+                            <p style="margin-top: 15px;">Вы — мирный житель. Найдите шпиона!</p>
+                        </div>
+                    `;
+                }
+                
+                tg.HapticFeedback.impact('medium');
+            },
+            
+            votePanel() {
+                const game = this.currentGame;
+                if (!game || game.status !== 'playing') return;
+                
+                document.getElementById('gameScreen').classList.add('hidden');
+                document.getElementById('voteScreen').classList.remove('hidden');
+                
+                const container = document.getElementById('votePlayersList');
+                container.innerHTML = '';
+                
+                game.players.forEach(p => {
+                    if (p.id === this.playerId) return;
+                    
+                    const div = document.createElement('div');
+                    div.className = 'player-badge';
+                    div.style.cursor = 'pointer';
+                    div.innerHTML = `<div class="player-name">${p.name}</div>`;
+                    div.onclick = () => {
+                        tg.showConfirm(`Проголосовать против ${p.name}?`, (confirmed) => {
+                            if (confirmed) {
+                                tg.showAlert('Голос учтён! (демо-режим)');
+                                this.closeVote();
+                                tg.HapticFeedback.notification('success');
+                            }
+                        });
+                    };
+                    container.appendChild(div);
+                });
+            },
+            
+            closeVote() {
+                document.getElementById('voteScreen').classList.add('hidden');
+                document.getElementById('gameScreen').classList.remove('hidden');
+            },
+            
+            endGame() {
+                const game = this.currentGame;
+                if (!game) return;
+                
+                game.status = 'ended';
+                this.saveGameToStorage(game);
+                
+                // Показать всех шпионов
+                const spyNames = game.players.filter(p => game.spies.includes(p.id)).map(p => p.name).join(', ');
+                
+                tg.showAlert(`Игра завершена! 🕵️ Шпионы: ${spyNames}`, () => {
+                    this.currentGame = null;
+                    localStorage.removeItem('spy_game_state');
+                    location.reload();
+                });
+            },
+            
+            leaveLobby() {
+                const game = this.currentGame;
+                if (!game) return;
+                
+                if (game.host === this.playerId) {
+                    // Хост выходит - удаляем игру
+                    localStorage.removeItem(`spy_game_${game.id}`);
+                } else {
+                    // Удаляем игрока
+                    game.players = game.players.filter(p => p.id !== this.playerId);
+                    this.saveGameToStorage(game);
+                }
+                
+                this.currentGame = null;
+                localStorage.removeItem('spy_game_state');
+                document.getElementById('mainMenu').classList.remove('hidden');
+                document.getElementById('lobbyScreen').classList.add('hidden');
+            },
+            
+            copyGameId() {
+                const gameId = this.currentGame.id;
+                navigator.clipboard?.writeText(gameId).then(() => {
+                    tg.showPopup({ title: '✅ Готово', message: 'Код скопирован! Отправьте его друзьям.' });
+                }).catch(() => {
+                    tg.showAlert(`Код игры: ${gameId}`);
+                });
+            },
+            
+            shareBot() {
+                const botUrl = `https://t.me/${tg.botUsername || 'your_bot'}`;
+                tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(botUrl)}&text=${encodeURIComponent('🕵️ Заходи играть в Шпиона!')}`);
+            },
+            
+            // Работа с localStorage
+            saveGameToStorage(game) {
+                localStorage.setItem(`spy_game_${game.id}`, JSON.stringify(game));
+                localStorage.setItem('spy_game_state', JSON.stringify({ gameId: game.id, playerId: this.playerId }));
+            },
+            
+            getGameFromStorage(gameId) {
+                const data = localStorage.getItem(`spy_game_${gameId}`);
+                return data ? JSON.parse(data) : null;
+            },
+            
+            loadState() {
+                const state = localStorage.getItem('spy_game_state');
+                if (state) {
+                    try {
+                        const { gameId, playerId } = JSON.parse(state);
+                        if (playerId === this.playerId) {
+                            const game = this.getGameFromStorage(gameId);
+                            if (game) {
+                                this.currentGame = game;
+                                if (game.status === 'lobby') {
+                                    this.showLobby();
+                                } else if (game.status === 'playing') {
+                                    this.showGameScreen();
+                                }
+                            }
+                        }
+                    } catch(e) {}
+                }
+            },
+            
+            startPolling() {
+                // Псевдо-real-time: обновляем состояние каждые 2 секунды
+                if (this.pollInterval) clearInterval(this.pollInterval);
+                this.pollInterval = setInterval(() => {
+                    if (this.currentGame) {
+                        const freshGame = this.getGameFromStorage(this.currentGame.id);
+                        if (freshGame) {
+                            this.currentGame = freshGame;
+                            
+                            if (this.currentGame.status === 'lobby') {
+                                this.updateLobbyUI();
+                            } else if (this.currentGame.status === 'playing') {
+                                if (!document.getElementById('gameScreen').classList.contains('hidden')) {
+                                    this.updateGameUI();
+                                } else {
+                                    this.showGameScreen();
+                                }
+                            }
+                        }
+                    }
+                }, 2000);
+            },
+            
+            startGameTimer() {
+                if (this.timerInterval) clearInterval(this.timerInterval);
+                this.timerInterval = setInterval(() => {
+                    if (this.currentGame && this.currentGame.status === 'playing') {
+                        this.updateGameUI();
+                    }
+                }, 1000);
+            }
+        };
+
+        // Запуск приложения
+        app.init();
+        
+        // Очистка интервалов при закрытии
+        window.addEventListener('beforeunload', () => {
+            if (app.pollInterval) clearInterval(app.pollInterval);
+            if (app.timerInterval) clearInterval(app.timerInterval);
+        });
+    </script>
+</body>
+</html>
