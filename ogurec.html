@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <title>🥒 Огуречный Кликер</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: linear-gradient(145deg, #1b4a1b 0%, #2d6a2d 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', 'Roboto', system-ui, sans-serif;
+            padding: 12px;
+        }
+        .game-container {
+            max-width: 500px;
+            width: 100%;
+            background: rgba(250, 245, 220, 0.9);
+            backdrop-filter: blur(8px);
+            border-radius: 48px;
+            padding: 24px 20px 30px;
+            box-shadow: 0 20px 40px rgba(0, 20, 0, 0.5), inset 0 2px 6px rgba(255, 255, 200, 0.6);
+            border: 2px solid #e9e1b2;
+        }
+        h1 {
+            text-align: center;
+            margin: 0 0 8px 0;
+            font-weight: 800;
+            font-size: 2.6rem;
+            letter-spacing: 2px;
+            color: #1e3a1e;
+            text-shadow: 4px 4px 0 #b9d48b;
+            word-break: break-word;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        h1 span {
+            font-size: 2.8rem;
+        }
+        .score-panel {
+            background: #2c472c;
+            border-radius: 80px;
+            padding: 16px 24px;
+            margin: 10px 0 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: inset 0 6px 8px rgba(0,0,0,0.3), 0 6px 0 #142114;
+            border-bottom: 3px solid #6f8f4a;
+        }
+        .score-box {
+            background: #fbf5d7;
+            border-radius: 40px;
+            padding: 10px 20px;
+            box-shadow: inset 0 2px 5px #6b6b3e, 0 4px 0 #5e7330;
+            color: #1e3a1e;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.7rem;
+        }
+        .score-box img {
+            width: 32px;
+            height: 32px;
+            filter: drop-shadow(0 2px 2px #3a5a1e);
+        }
+        .per-second {
+            background: #3f6130;
+            padding: 8px 18px;
+            border-radius: 30px;
+            color: #f9f2b0;
+            font-weight: 700;
+            font-size: 1.2rem;
+            box-shadow: inset 0 2px 5px #1f351a, 0 3px 0 #1e2f0e;
+        }
+        .cucumber-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .tap-cucumber {
+            background: radial-gradient(circle at 30% 30%, #f5f9c9, #abc97c);
+            width: 200px;
+            height: 200px;
+            border-radius: 50% 50% 45% 45%;
+            box-shadow: 0 20px 0 #3f6b1e, 0 25px 30px rgba(0,0,0,0.3), inset 0 -12px 8px rgba(40,70,0,0.5);
+            border: 6px solid #2a551a;
+            cursor: pointer;
+            transition: all 0.06s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 10px 0 5px;
+            transform: rotate(-5deg);
+        }
+        .tap-cucumber:active {
+            transform: scale(0.94) rotate(-3deg);
+            box-shadow: 0 8px 0 #2e5516, 0 15px 20px rgba(0,0,0,0.3), inset 0 -6px 6px rgba(0,0,0,0.2);
+        }
+        .cucumber-emoji {
+            font-size: 120px;
+            line-height: 1;
+            filter: drop-shadow(4px 12px 6px #305010);
+            margin-bottom: 12px;
+        }
+        .click-hint {
+            color: #fcf9e3;
+            background: #2e572e;
+            padding: 6px 20px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 1.2rem;
+            box-shadow: inset 0 1px 5px #c5dba2, 0 4px 0 #143014;
+            margin-top: 4px;
+        }
+        .upgrades-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin: 20px 0 12px;
+            color: #1e3a1e;
+            text-shadow: 2px 2px 0 #c3d696;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 3px dashed #58853e;
+            padding-bottom: 8px;
+        }
+        .upgrades-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .upgrade-card {
+            background: #ecdfb2;
+            border-radius: 30px;
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 8px 0 #6c8442, 0 5px 10px rgba(0,0,0,0.2);
+            border: 2px solid #acb87a;
+            transition: all 0.1s;
+        }
+        .upgrade-info {
+            display: flex;
+            flex-direction: column;
+        }
+        .upgrade-name {
+            font-weight: 800;
+            font-size: 1.4rem;
+            color: #1f3c1a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .upgrade-desc {
+            font-size: 0.9rem;
+            color: #2f4622;
+            font-weight: 600;
+        }
+        .upgrade-stats {
+            margin-top: 4px;
+            font-weight: 700;
+            color: #2d4d1a;
+        }
+        .buy-btn {
+            background: #ffcf4a;
+            border: none;
+            border-radius: 60px;
+            padding: 14px 18px;
+            font-weight: 800;
+            font-size: 1.2rem;
+            color: #263f0e;
+            box-shadow: 0 6px 0 #b47d2b, 0 2px 6px black;
+            cursor: pointer;
+            transition: 0.06s;
+            min-width: 100px;
+            text-align: center;
+            border: 2px solid #ffeab0;
+            letter-spacing: 0.5px;
+        }
+        .buy-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #9e691f, 0 2px 6px black;
+        }
+        .buy-btn.disabled {
+            opacity: 0.5;
+            filter: grayscale(0.5);
+            pointer-events: none;
+            box-shadow: 0 4px 0 #7e5e2e;
+            transform: translateY(2px);
+            background: #b9a77c;
+        }
+        .reset-area {
+            display: flex;
+            justify-content: center;
+            margin-top: 22px;
+        }
+        .reset-btn {
+            background: #4d3620;
+            border: none;
+            color: #ffecb3;
+            padding: 10px 26px;
+            border-radius: 40px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            box-shadow: 0 5px 0 #2d1f12;
+            cursor: pointer;
+            border: 1px solid #b3925c;
+            transition: 0.06s;
+        }
+        .reset-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #2d1f12;
+        }
+        .footer-note {
+            text-align: center;
+            margin-top: 12px;
+            color: #1e3a1e;
+            font-weight: 600;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+<div class="game-container">
+    <h1>
+        <span>🥒</span> ОГУРЦЫ <span>🥒</span>
+    </h1>
+    
+    <!-- Счётчик -->
+    <div class="score-panel">
+        <div class="score-box">
+            <span>🥒</span>
+            <span id="cucumberCounter">0</span>
+        </div>
+        <div class="per-second" id="perSecondDisplay">
+            ⏱️ 0/сек
+        </div>
+    </div>
+
+    <!-- Область клика -->
+    <div class="cucumber-area">
+        <div class="tap-cucumber" id="clickableCucumber">
+            <div class="cucumber-emoji">🥒</div>
+        </div>
+        <div class="click-hint">
+            👆 ТАПАЙ ПО ОГУРЦУ!
+        </div>
+    </div>
+
+    <!-- Улучшения -->
+    <div class="upgrades-title">
+        <span>🛠️ УЛУЧШЕНИЯ</span> <span style="font-size:1.2rem;">(пассивный доход)</span>
+    </div>
+    <div class="upgrades-list" id="upgradesContainer">
+        <!-- улучшения будут сгенерированы через JS -->
+    </div>
+
+    <!-- Сброс -->
+    <div class="reset-area">
+        <button class="reset-btn" id="resetButton">🔄 Начать заново</button>
+    </div>
+    <div class="footer-note">
+        ✨ Каждый тап +1 огурец (база)
+    </div>
+</div>
+
+<script>
+    (function(){
+        "use strict";
+
+        // ---------- СОСТОЯНИЕ ИГРЫ ----------
+        let cucumbers = 0.0;              // текущие огурцы (может быть дробным при автоклике, но показываем целое)
+        let clickMultiplier = 1;           // множитель клика (от улучшения "Сила тапа")
+        let passivePerSecond = 0;          // огурцов в секунду
+
+        // Флаги покупки (уровни)
+        let strongTapLevel = 0;            // уровень улучшения силы тапа (0..макс)
+        const STRONG_TAP_MAX = 5;
+        const STRONG_TAP_BASE_PRICE = 15;
+        
+        let autoClickerLevel = 0;          // количество автокликеров (огуречный бот)
+        const AUTO_PRICE_BASE = 30;
+        
+        let farmerLevel = 0;              // Ферма огурцов (большой пассивный доход)
+        const FARMER_PRICE_BASE = 100;
+
+        // Последнее время для расчёта пассивного дохода
+        let lastTimestamp = performance.now();
+
+        // ---------- DOM ЭЛЕМЕНТЫ ----------
+        const counterSpan = document.getElementById('cucumberCounter');
+        const perSecondDisplay = document.getElementById('perSecondDisplay');
+        const clickableCucumber = document.getElementById('clickableCucumber');
+        const upgradesContainer = document.getElementById('upgradesContainer');
+        const resetBtn = document.getElementById('resetButton');
+
+        // ---------- ФУНКЦИИ ОТОБРАЖЕНИЯ ----------
+        function formatNumber(num) {
+            // показываем целое число (округляем вниз, но огурцы хранятся как float)
+            return Math.floor(num).toLocaleString();
+        }
+
+        function updateUI() {
+            counterSpan.textContent = formatNumber(cucumbers);
+            perSecondDisplay.textContent = `⏱️ ${passivePerSecond.toFixed(1)}/сек`;
+            
+            // Перерисовываем кнопки улучшений (их состояние зависит от баланса)
+            renderUpgradeButtons();
+        }
+
+        // Проверка, можем ли купить улучшение (возвращает true если хватает огурцов)
+        function canAfford(cost) {
+            return cucumbers >= cost;
+        }
+
+        // Покупка: списываем огурцы и обновляем UI
+        function spendCucumbers(amount) {
+            if (cucumbers >= amount) {
+                cucumbers -= amount;
+                updateUI();
+                return true;
+            }
+            return false;
+        }
+
+        // ---------- ЛОГИКА УЛУЧШЕНИЙ ----------
+        function getStrongTapCost() {
+            return STRONG_TAP_BASE_PRICE * (strongTapLevel + 1);
+        }
+
+        function getAutoClickerCost() {
+            return AUTO_PRICE_BASE * (autoClickerLevel + 1);
+        }
+
+        function getFarmerCost() {
+            return FARMER_PRICE_BASE * (farmerLevel + 1);
+        }
+
+        // Пересчёт пассивного дохода
+        function recalcPassive() {
+            // автокликер: каждое улучшение даёт +1 ог/сек
+            const fromAuto = autoClickerLevel * 1.0;
+            // ферма: каждое улучшение даёт +5 ог/сек
+            const fromFarmer = farmerLevel * 5.0;
+            passivePerSecond = fromAuto + fromFarmer;
+        }
+
+        // Покупка "Сила тапа"
+        function buyStrongTap() {
+            const cost = getStrongTapCost();
+            if (!canAfford(cost)) return false;
+            if (strongTapLevel >= STRONG_TAP_MAX) return false;
+            
+            spendCucumbers(cost);
+            strongTapLevel++;
+            // множитель клика: каждый уровень +1 к силе (1→2, 2→3 ...)
+            clickMultiplier = 1 + strongTapLevel;
+            updateUI();
+            return true;
+        }
+
+        // Покупка автокликера
+        function buyAutoClicker() {
+            const cost = getAutoClickerCost();
+            if (!canAfford(cost)) return false;
+            
+            spendCucumbers(cost);
+            autoClickerLevel++;
+            recalcPassive();
+            updateUI();
+            return true;
+        }
+
+        // Покупка фермы
+        function buyFarmer() {
+            const cost = getFarmerCost();
+            if (!canAfford(cost)) return false;
+            
+            spendCucumbers(cost);
+            farmerLevel++;
+            recalcPassive();
+            updateUI();
+            return true;
+        }
+
+        // ---------- РЕНДЕР КНОПОК УЛУЧШЕНИЙ (динамически) ----------
+        function renderUpgradeButtons() {
+            // Шаблон карточек
+            const strongCost = getStrongTapCost();
+            const autoCost = getAutoClickerCost();
+            const farmCost = getFarmerCost();
+
+            const strongDisabled = (strongTapLevel >= STRONG_TAP_MAX) || !canAfford(strongCost);
+            const autoDisabled = !canAfford(autoCost);
+            const farmDisabled = !canAfford(farmCost);
+
+            const strongMaxed = strongTapLevel >= STRONG_TAP_MAX;
+
+            upgradesContainer.innerHTML = `
+                <!-- Сила тапа -->
+                <div class="upgrade-card">
+                    <div class="upgrade-info">
+                        <div class="upgrade-name">
+                            <span>💪 СИЛА ТАПА</span> <span style="font-size:1rem;">ур.${strongTapLevel}/${STRONG_TAP_MAX}</span>
+                        </div>
+                        <div class="upgrade-desc">Каждый тап даёт +${clickMultiplier} огурца</div>
+                        <div class="upgrade-stats">💰 Цена: ${strongCost} 🥒</div>
+                    </div>
+                    <button class="buy-btn ${strongDisabled ? 'disabled' : ''}" data-upgrade="strong">
+                        ${strongMaxed ? 'МАКС' : 'КУПИТЬ'}
+                    </button>
+                </div>
+                
+                <!-- Автокликер (робот) -->
+                <div class="upgrade-card">
+                    <div class="upgrade-info">
+                        <div class="upgrade-name">
+                            <span>🤖 ОГУРЕЧНЫЙ БОТ</span> <span style="font-size:1rem;">ур.${autoClickerLevel}</span>
+                        </div>
+                        <div class="upgrade-desc">+1 🥒/сек за уровень</div>
+                        <div class="upgrade-stats">💰 Цена: ${autoCost} 🥒</div>
+                    </div>
+                    <button class="buy-btn ${autoDisabled ? 'disabled' : ''}" data-upgrade="auto">
+                        КУПИТЬ
+                    </button>
+                </div>
+                
+                <!-- Ферма -->
+                <div class="upgrade-card">
+                    <div class="upgrade-info">
+                        <div class="upgrade-name">
+                            <span>🏡 ОГУРЕЧНАЯ ФЕРМА</span> <span style="font-size:1rem;">ур.${farmerLevel}</span>
+                        </div>
+                        <div class="upgrade-desc">+5 🥒/сек за уровень</div>
+                        <div class="upgrade-stats">💰 Цена: ${farmCost} 🥒</div>
+                    </div>
+                    <button class="buy-btn ${farmDisabled ? 'disabled' : ''}" data-upgrade="farmer">
+                        КУПИТЬ
+                    </button>
+                </div>
+            `;
+
+            // Привязываем обработчики к кнопкам
+            document.querySelectorAll('[data-upgrade]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const type = btn.getAttribute('data-upgrade');
+                    if (type === 'strong') {
+                        buyStrongTap();
+                    } else if (type === 'auto') {
+                        buyAutoClicker();
+                    } else if (type === 'farmer') {
+                        buyFarmer();
+                    }
+                    // после покупки UI обновлён внутри функций
+                });
+            });
+        }
+
+        // ---------- ОБРАБОТКА КЛИКА ПО ОГУРЦУ ----------
+        function handleCucumberClick(e) {
+            // добавляем огурцы с учётом множителя
+            cucumbers += clickMultiplier;
+            updateUI();
+            
+            // небольшая анимация (просто визуал)
+            const cuc = clickableCucumber;
+            cuc.style.transform = 'scale(0.92) rotate(-4deg)';
+            setTimeout(() => {
+                cuc.style.transform = 'scale(1) rotate(-5deg)';
+            }, 70);
+        }
+
+        // ---------- ПАССИВНЫЙ ДОХОД (игровой цикл) ----------
+        function gameLoop(now) {
+            // Вычисляем прошедшее время в секундах
+            const deltaSeconds = (now - lastTimestamp) / 1000;
+            if (deltaSeconds > 0) {
+                // Пассивный доход только если больше 0
+                const earned = passivePerSecond * deltaSeconds;
+                cucumbers += earned;
+                // ограничим до двух знаков после запятой для стабильности, но не обязательно
+                if (cucumbers < 0) cucumbers = 0;
+                lastTimestamp = now;
+                updateUI();
+            } else {
+                // на всякий случай
+                lastTimestamp = now;
+            }
+            requestAnimationFrame(gameLoop);
+        }
+
+        // ---------- СБРОС ИГРЫ ----------
+        function resetGame() {
+            cucumbers = 0.0;
+            clickMultiplier = 1;
+            strongTapLevel = 0;
+            autoClickerLevel = 0;
+            farmerLevel = 0;
+            passivePerSecond = 0;
+            lastTimestamp = performance.now(); // сброс таймера
+            
+            updateUI();
+            renderUpgradeButtons();
+        }
+
+        // ---------- ИНИЦИАЛИЗАЦИЯ И ПРИВЯЗКИ ----------
+        function init() {
+            // Начальное отображение
+            resetGame(); // устанавливает всё в 0 и рендерит
+
+            // Слушатели
+            clickableCucumber.addEventListener('click', handleCucumberClick);
+            
+            resetBtn.addEventListener('click', () => {
+                resetGame();
+            });
+
+            // Запускаем игровой цикл
+            lastTimestamp = performance.now();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Поехали!
+        init();
+    })();
+</script>
+</body>
+</html>
