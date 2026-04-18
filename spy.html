@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🕵️ Шпион | Telegram Mini App</title>
-    <!-- Telegram Web App SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * {
@@ -20,7 +19,6 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            transition: background 0.2s, color 0.2s;
         }
         .header {
             display: flex;
@@ -197,11 +195,26 @@
             font-size: 12px;
             text-align: center;
             border: 1px solid var(--tg-theme-hint-color, #444);
-            cursor: pointer;
         }
-        .loc-option.selected {
-            border: 2px solid var(--tg-theme-button-color, #0f3460);
-            background: var(--tg-theme-secondary-bg-color, #16213e);
+        input {
+            background: var(--tg-theme-bg-color, #1a1a2e);
+            color: var(--tg-theme-text-color, #eee);
+            border: 1px solid var(--tg-theme-hint-color, #444);
+            border-radius: 14px;
+            padding: 14px;
+            font-size: 16px;
+            width: 100%;
+        }
+        input:focus {
+            outline: none;
+            border-color: var(--tg-theme-button-color, #0f3460);
+        }
+        input::placeholder {
+            color: var(--tg-theme-hint-color, #666);
+        }
+        .random-location-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
         }
     </style>
 </head>
@@ -225,7 +238,7 @@
             <div style="margin: 20px 0;">
                 <label style="display: block; margin-bottom: 8px;">🔑 Присоединиться по коду:</label>
                 <div class="flex-row">
-                    <input type="text" id="joinGameIdInput" placeholder="Код игры" maxlength="6" style="flex: 1; padding: 14px; border-radius: 14px; border: none; background: var(--tg-theme-bg-color); color: var(--tg-theme-text-color); font-size: 16px; text-transform: uppercase;">
+                    <input type="text" id="joinGameIdInput" placeholder="Код игры" maxlength="6" style="text-transform: uppercase;" autocomplete="off">
                     <button class="btn" style="width: auto; margin: 0;" onclick="app.joinGame()">Войти</button>
                 </div>
             </div>
@@ -249,8 +262,13 @@
             <div id="playersList" class="players-grid"></div>
             
             <div id="hostControls" class="hidden">
-                <label style="display: block; margin: 15px 0 8px;">📍 Выберите локацию:</label>
-                <div id="locationSelector" class="location-list"></div>
+                <div style="margin: 15px 0;">
+                    <label style="display: block; margin-bottom: 8px;">🎲 Локация будет выбрана случайно</label>
+                    <button class="btn random-location-btn" onclick="app.rollRandomLocation()">🎲 Перебросить локацию</button>
+                    <div id="selectedLocationDisplay" style="margin-top: 10px; padding: 10px; background: var(--tg-theme-bg-color); border-radius: 10px; text-align: center;">
+                        Локация не выбрана
+                    </div>
+                </div>
                 
                 <button class="btn" id="startGameBtn" onclick="app.startGame()" disabled>🚀 Начать игру</button>
             </div>
@@ -267,9 +285,7 @@
             
             <div class="timer" id="gameTimer">05:00</div>
             
-            <div id="gameInfoPanel">
-                <!-- Здесь будет показываться роль/локация -->
-            </div>
+            <div id="gameInfoPanel"></div>
             
             <div class="players-grid" id="gamePlayersList"></div>
             
@@ -289,32 +305,27 @@
     </div>
 
     <script>
-        // Инициализация Telegram Web App
         const tg = window.Telegram.WebApp;
-        tg.expand(); // Раскрыть на весь экран
+        tg.expand();
         tg.ready();
         
-        // Настройка темы
-        document.body.style.backgroundColor = 'var(--tg-theme-bg-color)';
-        
-        // Локации и роли
         const LOCATIONS = [
             { name: "🛳️ Пиратский корабль", roles: ["Капитан", "Боцман", "Юнга", "Кок", "Штурман", "Матрос"] },
             { name: "🏥 Больница", roles: ["Хирург", "Медсестра", "Пациент", "Терапевт", "Регистратор"] },
             { name: "🏫 Школа", roles: ["Учитель", "Директор", "Ученик", "Охранник", "Библиотекарь"] },
             { name: "🍔 Ресторан", roles: ["Шеф-повар", "Официант", "Посетитель", "Бармен", "Уборщик"] },
             { name: "🚀 Космическая станция", roles: ["Командир", "Инженер", "Биолог", "Связист", "Доктор"] },
-            { name: "🏦 Банк", roles: ["Управляющий", "Кассир", "Охранник", "Клиент", "Инкассатор"] }
+            { name: "🏦 Банк", roles: ["Управляющий", "Кассир", "Охранник", "Клиент", "Инкассатор"] },
+            { name: "🎬 Киностудия", roles: ["Режиссёр", "Актёр", "Оператор", "Сценарист", "Гримёр"] },
+            { name: "⚽ Стадион", roles: ["Футболист", "Тренер", "Судья", "Комментатор", "Вратарь"] }
         ];
 
-        // Состояние приложения
         const app = {
             user: null,
             currentGame: null,
             playerId: null,
             
             init() {
-                // Получаем данные пользователя из Telegram
                 if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
                     this.user = tg.initDataUnsafe.user;
                     document.getElementById('profileName').textContent = this.user.first_name + (this.user.last_name ? ' ' + this.user.last_name : '');
@@ -328,19 +339,16 @@
                         avatar.textContent = '';
                     }
                 } else {
-                    // Режим разработки / отладка
-                    console.log("Debug mode: используем тестового пользователя");
-                    this.user = { id: 123456, first_name: "Игрок", username: "player" };
+                    console.log("Debug mode: тестовый пользователь");
+                    this.user = { id: Date.now(), first_name: "Игрок", username: "player" };
                     document.getElementById('profileName').textContent = "Игрок Тест";
                     document.getElementById('profileUsername').textContent = "@test";
                 }
                 this.playerId = this.user.id.toString();
                 
-                // Загружаем сохранённую игру из localStorage
                 this.loadState();
             },
             
-            // Создание новой игры
             createGame() {
                 const gameId = Math.random().toString(36).substring(2, 8).toUpperCase();
                 const game = {
@@ -352,7 +360,7 @@
                         username: this.user.username || '',
                         isHost: true
                     }],
-                    status: 'lobby', // lobby, playing, voting, ended
+                    status: 'lobby',
                     location: null,
                     roles: [],
                     spies: [],
@@ -366,17 +374,24 @@
                 tg.HapticFeedback.notification('success');
             },
             
-            // Присоединение к игре
             joinGame() {
-                const gameId = document.getElementById('joinGameIdInput').value.trim().toUpperCase();
+                const input = document.getElementById('joinGameIdInput');
+                const gameId = input.value.trim().toUpperCase();
+                
                 if (!gameId) {
                     tg.showAlert('Введите код игры');
                     return;
                 }
                 
+                if (gameId.length !== 6) {
+                    tg.showAlert('Код должен состоять из 6 символов');
+                    return;
+                }
+                
                 const game = this.getGameFromStorage(gameId);
+                
                 if (!game) {
-                    tg.showAlert('Игра не найдена');
+                    tg.showAlert(`Игра с кодом ${gameId} не найдена. Проверьте правильность кода.`);
                     return;
                 }
                 
@@ -387,9 +402,9 @@
                 
                 const existingPlayer = game.players.find(p => p.id === this.playerId);
                 if (existingPlayer) {
-                    // Уже в игре
                     this.currentGame = game;
                     this.showLobby();
+                    input.value = '';
                     return;
                 }
                 
@@ -408,11 +423,30 @@
                 this.currentGame = game;
                 this.saveGameToStorage(game);
                 this.showLobby();
+                input.value = '';
                 
                 tg.HapticFeedback.notification('success');
             },
             
-            // Показать лобби
+            rollRandomLocation() {
+                if (this.currentGame.host !== this.playerId) {
+                    tg.showAlert('Только хост может выбирать локацию');
+                    return;
+                }
+                
+                const randomIndex = Math.floor(Math.random() * LOCATIONS.length);
+                this.currentGame.location = randomIndex;
+                this.saveGameToStorage(this.currentGame);
+                
+                const locationName = LOCATIONS[randomIndex].name;
+                document.getElementById('selectedLocationDisplay').textContent = `📍 ${locationName}`;
+                
+                const startBtn = document.getElementById('startGameBtn');
+                startBtn.disabled = this.currentGame.players.length < 3;
+                
+                tg.HapticFeedback.impact('light');
+            },
+            
             showLobby() {
                 document.getElementById('mainMenu').classList.add('hidden');
                 document.getElementById('lobbyScreen').classList.remove('hidden');
@@ -420,7 +454,7 @@
                 document.getElementById('voteScreen').classList.add('hidden');
                 
                 this.updateLobbyUI();
-                this.startPolling(); // Псевдо-real-time обновления
+                this.startPolling();
             },
             
             updateLobbyUI() {
@@ -443,42 +477,35 @@
                     playersList.appendChild(div);
                 });
                 
-                // Показать контролы хоста
                 const isHost = game.host === this.playerId;
                 document.getElementById('hostControls').classList.toggle('hidden', !isHost);
                 
                 if (isHost) {
-                    this.renderLocationSelector();
+                    if (game.location !== null) {
+                        const locationName = LOCATIONS[game.location].name;
+                        document.getElementById('selectedLocationDisplay').textContent = `📍 ${locationName}`;
+                    } else {
+                        document.getElementById('selectedLocationDisplay').textContent = 'Локация не выбрана';
+                    }
+                    
                     const startBtn = document.getElementById('startGameBtn');
-                    startBtn.disabled = game.players.length < 3;
+                    startBtn.disabled = game.players.length < 3 || game.location === null;
                 }
                 
                 const waitingMsg = document.getElementById('waitingMessage');
                 if (isHost) {
-                    waitingMsg.textContent = game.players.length < 3 ? 'Минимум 3 игрока для начала' : 'Можно начинать!';
+                    if (game.players.length < 3) {
+                        waitingMsg.textContent = 'Минимум 3 игрока для начала';
+                    } else if (game.location === null) {
+                        waitingMsg.textContent = 'Нажмите "Перебросить локацию" для выбора';
+                    } else {
+                        waitingMsg.textContent = 'Можно начинать!';
+                    }
                 } else {
                     waitingMsg.textContent = 'Ожидание хоста...';
                 }
             },
             
-            renderLocationSelector() {
-                const container = document.getElementById('locationSelector');
-                container.innerHTML = '';
-                
-                LOCATIONS.forEach((loc, idx) => {
-                    const div = document.createElement('div');
-                    div.className = 'loc-option' + (this.currentGame.location === idx ? ' selected' : '');
-                    div.textContent = loc.name;
-                    div.onclick = () => {
-                        this.currentGame.location = idx;
-                        this.renderLocationSelector();
-                        this.saveGameToStorage(this.currentGame);
-                    };
-                    container.appendChild(div);
-                });
-            },
-            
-            // Начать игру
             startGame() {
                 const game = this.currentGame;
                 if (game.host !== this.playerId) {
@@ -492,21 +519,18 @@
                 }
                 
                 if (game.location === null) {
-                    tg.showAlert('Выберите локацию');
+                    tg.showAlert('Сначала выберите локацию');
                     return;
                 }
                 
-                // Распределяем роли
                 const locationData = LOCATIONS[game.location];
                 const roles = [...locationData.roles];
                 
-                // Перемешиваем роли
                 for (let i = roles.length - 1; i > 0; i--) {
                     const j = Math.floor(Math.random() * (i + 1));
                     [roles[i], roles[j]] = [roles[j], roles[i]];
                 }
                 
-                // Определяем количество шпионов
                 const playerCount = game.players.length;
                 let spyCount = 1;
                 if (playerCount >= 6) spyCount = 2;
@@ -531,7 +555,7 @@
                 
                 game.status = 'playing';
                 game.startedAt = Date.now();
-                game.duration = 300; // 5 минут в секундах
+                game.duration = 300;
                 
                 this.saveGameToStorage(game);
                 this.showGameScreen();
@@ -554,7 +578,6 @@
                 const game = this.currentGame;
                 if (!game) return;
                 
-                // Обновить таймер
                 const elapsed = Math.floor((Date.now() - game.startedAt) / 1000);
                 const remaining = Math.max(0, game.duration - elapsed);
                 const minutes = Math.floor(remaining / 60);
@@ -565,7 +588,6 @@
                     this.endGame();
                 }
                 
-                // Список игроков
                 const playersList = document.getElementById('gamePlayersList');
                 playersList.innerHTML = '';
                 game.players.forEach(p => {
@@ -652,7 +674,6 @@
                 game.status = 'ended';
                 this.saveGameToStorage(game);
                 
-                // Показать всех шпионов
                 const spyNames = game.players.filter(p => game.spies.includes(p.id)).map(p => p.name).join(', ');
                 
                 tg.showAlert(`Игра завершена! 🕵️ Шпионы: ${spyNames}`, () => {
@@ -667,10 +688,8 @@
                 if (!game) return;
                 
                 if (game.host === this.playerId) {
-                    // Хост выходит - удаляем игру
                     localStorage.removeItem(`spy_game_${game.id}`);
                 } else {
-                    // Удаляем игрока
                     game.players = game.players.filter(p => p.id !== this.playerId);
                     this.saveGameToStorage(game);
                 }
@@ -695,7 +714,6 @@
                 tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(botUrl)}&text=${encodeURIComponent('🕵️ Заходи играть в Шпиона!')}`);
             },
             
-            // Работа с localStorage
             saveGameToStorage(game) {
                 localStorage.setItem(`spy_game_${game.id}`, JSON.stringify(game));
                 localStorage.setItem('spy_game_state', JSON.stringify({ gameId: game.id, playerId: this.playerId }));
@@ -727,7 +745,6 @@
             },
             
             startPolling() {
-                // Псевдо-real-time: обновляем состояние каждые 2 секунды
                 if (this.pollInterval) clearInterval(this.pollInterval);
                 this.pollInterval = setInterval(() => {
                     if (this.currentGame) {
@@ -759,10 +776,8 @@
             }
         };
 
-        // Запуск приложения
         app.init();
         
-        // Очистка интервалов при закрытии
         window.addEventListener('beforeunload', () => {
             if (app.pollInterval) clearInterval(app.pollInterval);
             if (app.timerInterval) clearInterval(app.timerInterval);
