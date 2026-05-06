@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eternal License Panel</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0d0d12;
+    color: #e0e0e0;
+    font-family: 'Segoe UI', sans-serif;
+    min-height: 100vh;
+  }
+
+  /* LOGIN */
+  #login-screen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    flex-direction: column;
+    gap: 20px;
+  }
+  #login-screen h1 { color: #dc3545; font-size: 28px; }
+  #login-screen p  { color: #888; }
+
+  /* LAYOUT */
+  #app { display: none; }
+  .sidebar {
+    position: fixed; left: 0; top: 0;
+    width: 220px; height: 100vh;
+    background: #13131a;
+    border-right: 1px solid #1e1e2e;
+    padding: 20px 0;
+    display: flex; flex-direction: column;
+  }
+  .sidebar-logo {
+    padding: 0 20px 20px;
+    border-bottom: 1px solid #1e1e2e;
+    color: #dc3545;
+    font-size: 18px;
+    font-weight: bold;
+  }
+  .nav-item {
+    padding: 12px 20px;
+    cursor: pointer;
+    color: #888;
+    display: flex; align-items: center; gap: 10px;
+    transition: all .2s;
+    border-left: 3px solid transparent;
+  }
+  .nav-item:hover { color: #fff; background: #1a1a25; }
+  .nav-item.active { color: #dc3545; border-left-color: #dc3545; background: #1a1a25; }
+  .nav-badge {
+    margin-left: auto;
+    background: #dc3545;
+    color: white;
+    border-radius: 10px;
+    padding: 2px 7px;
+    font-size: 11px;
+  }
+  .main {
+    margin-left: 220px;
+    padding: 30px;
+    min-height: 100vh;
+  }
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* CARDS */
+  .page-title {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #fff;
+  }
+  .card {
+    background: #13131a;
+    border: 1px solid #1e1e2e;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .card-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .hwid-text {
+    font-family: monospace;
+    background: #0d0d12;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    color: #aaa;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .time-text { color: #666; font-size: 12px; }
+  .status-badge {
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+  }
+  .status-active   { background: #0d2e1a; color: #28a745; }
+  .status-expired  { background: #2e2500; color: #ffc107; }
+  .status-banned   { background: #2e0d0d; color: #dc3545; }
+  .status-pending  { background: #1a1a2e; color: #6c6cff; }
+  .status-rejected { background: #1a1a1a; color: #666; }
+
+  /* BUTTONS */
+  .btn {
+    padding: 7px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: opacity .2s;
+  }
+  .btn:hover { opacity: .85; }
+  .btn-green  { background: #28a745; color: white; }
+  .btn-red    { background: #dc3545; color: white; }
+  .btn-yellow { background: #ffc107; color: #000; }
+  .btn-blue   { background: #007bff; color: white; }
+  .btn-gray   { background: #333; color: #ccc; }
+  .btn-sm { padding: 5px 12px; font-size: 12px; }
+
+  /* DAYS SELECT */
+  .days-select {
+    background: #1e1e2e;
+    border: 1px solid #333;
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+  }
+
+  /* INPUT */
+  .input-field {
+    background: #1e1e2e;
+    border: 1px solid #333;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    outline: none;
+  }
+  .input-field:focus { border-color: #dc3545; }
+
+  /* TABLE */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  th { background: #1a1a25; color: #888; font-size: 12px; text-align: left; padding: 10px 14px; }
+  td { padding: 10px 14px; border-bottom: 1px solid #1e1e2e; font-size: 13px; }
+  tr:hover td { background: #13131a; }
+  .mono { font-family: monospace; font-size: 11px; color: #aaa; }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.7);
+    display: none; align-items: center; justify-content: center;
+    z-index: 1000;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: #13131a;
+    border: 1px solid #1e1e2e;
+    border-radius: 12px;
+    padding: 28px;
+    width: 420px;
+    max-width: 95vw;
+  }
+  .modal h3 { margin-bottom: 16px; color: #fff; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+
+  /* STATS */
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 16px; margin-bottom: 24px; }
+  .stat-card {
+    background: #13131a;
+    border: 1px solid #1e1e2e;
+    border-radius: 10px;
+    padding: 18px;
+    text-align: center;
+  }
+  .stat-num { font-size: 32px; font-weight: bold; color: #dc3545; }
+  .stat-label { font-size: 12px; color: #666; margin-top: 4px; }
+
+  /* GOOGLE LOGIN BTN */
+  .google-btn {
+    background: #fff;
+    color: #333;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  .empty-state { color: #555; text-align: center; padding: 40px; }
+
+  textarea.input-field { resize: vertical; min-height: 80px; width: 100%; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <h1>⚡ Eternal License</h1>
+  <p>Панель управления лицензиями</p>
+  <button class="google-btn" onclick="loginWithGoogle()">
+    <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
+    Войти через Google
+  </button>
+  <p id="login-error" style="color:#dc3545;display:none"></p>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="sidebar">
+    <div class="sidebar-logo">⚡ Eternal Panel</div>
+    <div class="nav-item active" onclick="showPage('dashboard')" data-page="dashboard">📊 Дашборд</div>
+    <div class="nav-item" onclick="showPage('requests')" data-page="requests">
+      📨 Заявки <span class="nav-badge" id="badge-requests">0</span>
+    </div>
+    <div class="nav-item" onclick="showPage('users')" data-page="users">👥 Пользователи</div>
+    <div class="nav-item" onclick="showPage('appeals')" data-page="appeals">
+      ⚖️ Апелляции <span class="nav-badge" id="badge-appeals">0</span>
+    </div>
+    <div class="nav-item" onclick="showPage('admins')" data-page="admins" id="nav-admins" style="display:none">
+      🛡️ Администраторы
+    </div>
+    <div class="nav-item" style="margin-top:auto; color:#555" onclick="logout()">🚪 Выйти</div>
+  </div>
+
+  <div class="main">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-title">📊 Дашборд</div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-num" id="stat-active">—</div><div class="stat-label">Активных</div></div>
+        <div class="stat-card"><div class="stat-num" id="stat-expired">—</div><div class="stat-label">Истёкших</div></div>
+        <div class="stat-card"><div class="stat-num" id="stat-banned">—</div><div class="stat-label">Забаненных</div></div>
+        <div class="stat-card"><div class="stat-num" id="stat-pending">—</div><div class="stat-label">Заявок</div></div>
+      </div>
+      <div id="recent-requests"></div>
+    </div>
+
+    <!-- REQUESTS -->
+    <div class="page" id="page-requests">
+      <div class="page-title">📨 Заявки на рассмотрении</div>
+      <div id="requests-list"></div>
+    </div>
+
+    <!-- USERS -->
+    <div class="page" id="page-users">
+      <div class="page-title">👥 Пользователи</div>
+      <div style="margin-bottom:16px; display:flex; gap:10px">
+        <input class="input-field" id="user-search" placeholder="Поиск по HWID..." oninput="filterUsers()" style="flex:1">
+        <select class="days-select" id="user-filter" onchange="filterUsers()">
+          <option value="all">Все</option>
+          <option value="active">Активные</option>
+          <option value="expired">Истёкшие</option>
+          <option value="banned">Забаненные</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>HWID</th>
+            <th>Статус</th>
+            <th>Подписка до</th>
+            <th>Действия</th>
+          </tr></thead>
+          <tbody id="users-table"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- APPEALS -->
+    <div class="page" id="page-appeals">
+      <div class="page-title">⚖️ Апелляции</div>
+      <div id="appeals-list"></div>
+    </div>
+
+    <!-- ADMINS -->
+    <div class="page" id="page-admins">
+      <div class="page-title">🛡️ Администраторы</div>
+      <div class="card" style="margin-bottom:20px">
+        <h3 style="margin-bottom:12px; color:#fff">Добавить администратора</h3>
+        <div style="display:flex; gap:10px; flex-wrap:wrap">
+          <input class="input-field" id="new-admin-uid" placeholder="Google UID (из Firebase Auth)">
+          <input class="input-field" id="new-admin-name" placeholder="Имя / никнейм">
+          <select class="days-select" id="new-admin-role">
+            <option value="moderator">Модератор</option>
+            <option value="admin">Администратор</option>
+          </select>
+          <button class="btn btn-green" onclick="addAdmin()">Добавить</button>
+        </div>
+      </div>
+      <div id="admins-list"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL: Ban -->
+<div class="modal-overlay" id="modal-ban">
+  <div class="modal">
+    <h3>🔨 Забанить пользователя</h3>
+    <input class="input-field" id="ban-reason" placeholder="Причина бана..." style="width:100%; margin-top:8px">
+    <div class="modal-actions">
+      <button class="btn btn-gray" onclick="closeModal('modal-ban')">Отмена</button>
+      <button class="btn btn-red" onclick="confirmBan()">Забанить</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Extend -->
+<div class="modal-overlay" id="modal-extend">
+  <div class="modal">
+    <h3>📅 Продлить подписку</h3>
+    <select class="days-select" id="extend-days" style="margin-top:8px; width:100%">
+      <option value="7">7 дней</option>
+      <option value="31">31 день</option>
+      <option value="93">93 дня</option>
+      <option value="365">365 дней</option>
+    </select>
+    <div class="modal-actions">
+      <button class="btn btn-gray" onclick="closeModal('modal-extend')">Отмена</button>
+      <button class="btn btn-green" onclick="confirmExtend()">Продлить</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+// ============================================================
+// CONFIG
+// ============================================================
+const API_URL = "REPLACE_WITH_YOUR_WORKER_URL"; // например: https://eternal-license-api.yourname.workers.dev
+
+// Firebase config (из консоли Firebase → Project Settings → Your apps → Web)
+const firebaseConfig = {
+  apiKey:            "REPLACE_FIREBASE_API_KEY",
+  authDomain:        "eternal-license-mode.firebaseapp.com",
+  projectId:         "eternal-license-mode",
+  storageBucket:     "eternal-license-mode.appspot.com",
+  messagingSenderId: "REPLACE_SENDER_ID",
+  appId:             "REPLACE_APP_ID"
+};
+
+// ============================================================
+// FIREBASE INIT
+// ============================================================
+import { initializeApp }                from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut }
+  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+const app      = initializeApp(firebaseConfig);
+const auth     = getAuth(app);
+const provider = new GoogleAuthProvider();
+
+let currentUser = null;
+let currentUserRole = null;
+let allUsers = [];
+
+// ============================================================
+// AUTH
+// ============================================================
+window.loginWithGoogle = async () => {
+  try {
+    await signInWithPopup(auth, provider);
+  } catch(e) {
+    document.getElementById("login-error").style.display = "block";
+    document.getElementById("login-error").textContent = e.message;
+  }
+};
+
+window.logout = async () => {
+  await signOut(auth);
+  location.reload();
+};
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    document.getElementById("login-screen").style.display = "flex";
+    document.getElementById("app").style.display = "none";
+    return;
+  }
+
+  currentUser = user;
+
+  // Проверяем роль через API
+  const adminsResp = await api("/admin/admins");
+  const admins = adminsResp || [];
+  const myAdmin = admins.find(a => a.data?.uid === user.uid || a.id === user.uid);
+
+  // Также проверяем суперадмина (первый кто зарегистрировался)
+  // Для простоты — если список пустой, первый юзер = суперадмин
+  if (!myAdmin && admins.length > 0) {
+    document.getElementById("login-screen").innerHTML =
+      `<h1 style="color:#dc3545">Доступ запрещён</h1><p>Ваш аккаунт не добавлен как администратор</p><p style="color:#666;font-size:12px">UID: ${user.uid}</p><button class="google-btn" onclick="logout()" style="margin-top:16px">Выйти</button>`;
+    return;
+  }
+
+  if (myAdmin) {
+    currentUserRole = myAdmin.data?.role || "moderator";
+  } else {
+    currentUserRole = "superadmin"; // первый юзер
+    // Автоматически добавляем как суперадмина
+    await api("/admin/addadmin", "POST", { uid: user.uid, username: user.displayName, role: "superadmin" });
+  }
+
+  // Показываем панель суперадмина
+  if (currentUserRole === "superadmin" || currentUserRole === "admin") {
+    document.getElementById("nav-admins").style.display = "flex";
+  }
+
+  document.getElementById("login-screen").style.display = "none";
+  document.getElementById("app").style.display = "block";
+
+  loadAll();
+});
+
+// ============================================================
+// API HELPER
+// ============================================================
+async function api(path, method = "GET", body = null) {
+  const opts = { method, headers: { "Content-Type": "application/json" } };
+  if (body) opts.body = JSON.stringify(body);
+  try {
+    const resp = await fetch(API_URL + path, opts);
+    return await resp.json();
+  } catch(e) {
+    console.error("API error:", e);
+    return null;
+  }
+}
+
+// ============================================================
+// LOAD ALL
+// ============================================================
+async function loadAll() {
+  await Promise.all([
+    loadRequests(),
+    loadUsers(),
+    loadAppeals(),
+  ]);
+  if (currentUserRole === "superadmin" || currentUserRole === "admin") {
+    loadAdmins();
+  }
+  updateDashboard();
+}
+
+// ============================================================
+// REQUESTS
+// ============================================================
+async function loadRequests() {
+  const data = await api("/admin/requests");
+  const list = document.getElementById("requests-list");
+  const badge = document.getElementById("badge-requests");
+
+  if (!data || data.length === 0) {
+    badge.textContent = "0";
+    list.innerHTML = `<div class="empty-state">Нет новых заявок</div>`;
+    return;
+  }
+
+  badge.textContent = data.length;
+
+  list.innerHTML = data.map(req => `
+    <div class="card">
+      <div class="card-row">
+        <div>
+          <div style="color:#888;font-size:12px;margin-bottom:4px">HWID</div>
+          <div class="hwid-text" style="max-width:320px">${req.data?.hwid || req.id}</div>
+        </div>
+        <div class="time-text">${formatDate(req.data?.created_at)}</div>
+        <div style="margin-left:auto; display:flex; gap:8px; align-items:center; flex-wrap:wrap">
+          <select class="days-select" id="days-${req.id}">
+            <option value="7">7 дней</option>
+            <option value="31">31 день</option>
+            <option value="93">93 дня</option>
+          </select>
+          <button class="btn btn-green btn-sm" onclick="approveRequest('${req.id}','${req.data?.hwid}')">✅ Одобрить</button>
+          <button class="btn btn-red btn-sm" onclick="rejectRequest('${req.id}','${req.data?.hwid}')">❌ Отклонить</button>
+        </div>
+      </div>
+    </div>
+  `).join("");
+}
+
+window.approveRequest = async (reqId, hwid) => {
+  const days = document.getElementById("days-" + reqId)?.value || "31";
+  if (!confirm(`Одобрить заявку на ${days} дней?`)) return;
+  await api("/admin/approve", "POST", { reqId, hwid, days });
+  loadAll();
+};
+
+window.rejectRequest = async (reqId, hwid) => {
+  if (!confirm("Отклонить заявку?")) return;
+  await api("/admin/reject", "POST", { reqId, hwid });
+  loadAll();
+};
+
+// ============================================================
+// USERS
+// ============================================================
+async function loadUsers() {
+  const data = await api("/admin/users");
+  allUsers = data || [];
+  renderUsers(allUsers);
+}
+
+function renderUsers(users) {
+  const tbody = document.getElementById("users-table");
+  if (!users.length) {
+    tbody.innerHTML = `<tr><td colspan="4" class="empty-state">Нет пользователей</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = users.map(u => {
+    const d = u.data || {};
+    const hwid = d.hwid || u.id;
+    const status = d.status || "unknown";
+    const subEnd = d.subscription_end ? formatDate(d.subscription_end) : "—";
+
+    return `
+      <tr>
+        <td><span class="mono">${hwid}</span></td>
+        <td><span class="status-badge status-${status}">${statusLabel(status)}</span></td>
+        <td>${subEnd}</td>
+        <td>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            ${status !== "banned"
+              ? `<button class="btn btn-yellow btn-sm" onclick="openExtend('${hwid}')">📅 Продлить</button>
+                 <button class="btn btn-red btn-sm" onclick="openBan('${hwid}')">🔨 Бан</button>
+                 <button class="btn btn-gray btn-sm" onclick="revokeUser('${hwid}')">🚫 Снять</button>`
+              : `<button class="btn btn-green btn-sm" onclick="unbanUser('${hwid}')">✅ Разбан</button>`
+            }
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join("");
+}
+
+window.filterUsers = () => {
+  const search = document.getElementById("user-search").value.toLowerCase();
+  const filter = document.getElementById("user-filter").value;
+  let filtered = allUsers;
+  if (filter !== "all") filtered = filtered.filter(u => u.data?.status === filter);
+  if (search) filtered = filtered.filter(u => (u.data?.hwid || u.id).toLowerCase().includes(search));
+  renderUsers(filtered);
+};
+
+let currentBanHwid = null;
+let currentExtendHwid = null;
+
+window.openBan = (hwid) => {
+  currentBanHwid = hwid;
+  document.getElementById("ban-reason").value = "";
+  document.getElementById("modal-ban").classList.add("open");
+};
+
+window.confirmBan = async () => {
+  const reason = document.getElementById("ban-reason").value || "Нарушение правил";
+  await api("/admin/ban", "POST", { hwid: currentBanHwid, reason });
+  closeModal("modal-ban");
+  loadAll();
+};
+
+window.openExtend = (hwid) => {
+  currentExtendHwid = hwid;
+  document.getElementById("modal-extend").classList.add("open");
+};
+
+window.confirmExtend = async () => {
+  const days = document.getElementById("extend-days").value;
+  await api("/admin/extend", "POST", { hwid: currentExtendHwid, days });
+  closeModal("modal-extend");
+  loadAll();
+};
+
+window.revokeUser = async (hwid) => {
+  if (!confirm("Снять подписку?")) return;
+  await api("/admin/revoke", "POST", { hwid });
+  loadAll();
+};
+
+window.unbanUser = async (hwid) => {
+  if (!confirm("Разбанить пользователя?")) return;
+  await api("/admin/unban", "POST", { hwid });
+  loadAll();
+};
+
+// ============================================================
+// APPEALS
+// ============================================================
+async function loadAppeals() {
+  const data = await api("/admin/appeals");
+  const list = document.getElementById("appeals-list");
+  const badge = document.getElementById("badge-appeals");
+
+  if (!data || data.length === 0) {
+    badge.textContent = "0";
+    list.innerHTML = `<div class="empty-state">Нет апелляций</div>`;
+    return;
+  }
+
+  badge.textContent = data.length;
+
+  list.innerHTML = data.map(a => `
+    <div class="card">
+      <div style="margin-bottom:10px">
+        <span class="mono">${a.data?.hwid || a.id}</span>
+        <span class="time-text" style="margin-left:12px">${formatDate(a.data?.created_at)}</span>
+      </div>
+      <div style="margin-bottom:8px; color:#888; font-size:12px">
+        Причина бана: <span style="color:#dc3545">${a.data?.ban_reason || "не указана"}</span>
+      </div>
+      <div style="background:#0d0d12; padding:12px; border-radius:6px; margin-bottom:12px; color:#ccc; font-size:13px">
+        ${escapeHtml(a.data?.description || "")}
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-green btn-sm" onclick="approveAppeal('${a.id}','${a.data?.hwid}')">✅ Разбанить</button>
+        <button class="btn btn-red btn-sm" onclick="rejectAppeal('${a.id}')">❌ Отклонить</button>
+      </div>
+    </div>
+  `).join("");
+}
+
+window.approveAppeal = async (appealId, hwid) => {
+  if (!confirm("Разбанить пользователя по апелляции?")) return;
+  await api("/admin/appeal/approve", "POST", { appealId, hwid });
+  loadAll();
+};
+
+window.rejectAppeal = async (appealId) => {
+  if (!confirm("Отклонить апелляцию?")) return;
+  await api("/admin/appeal/reject", "POST", { appealId });
+  loadAll();
+};
+
+// ============================================================
+// ADMINS
+// ============================================================
+async function loadAdmins() {
+  const data = await api("/admin/admins");
+  const list = document.getElementById("admins-list");
+
+  if (!data || data.length === 0) {
+    list.innerHTML = `<div class="empty-state">Нет администраторов</div>`;
+    return;
+  }
+
+  list.innerHTML = data.map(a => `
+    <div class="card">
+      <div class="card-row">
+        <div>
+          <div style="font-weight:bold;color:#fff">${a.data?.username || a.id}</div>
+          <div class="mono" style="margin-top:4px">${a.data?.uid || a.id}</div>
+        </div>
+        <span class="status-badge ${a.data?.role === 'superadmin' ? 'status-active' : 'status-pending'}">
+          ${a.data?.role || "moderator"}
+        </span>
+        ${currentUserRole === "superadmin" && a.data?.role !== "superadmin"
+          ? `<button class="btn btn-red btn-sm" onclick="removeAdmin('${a.id}')">Удалить</button>`
+          : ""}
+      </div>
+    </div>
+  `).join("");
+}
+
+window.addAdmin = async () => {
+  const uid  = document.getElementById("new-admin-uid").value.trim();
+  const name = document.getElementById("new-admin-name").value.trim();
+  const role = document.getElementById("new-admin-role").value;
+  if (!uid || !name) return alert("Заполни все поля");
+  await api("/admin/addadmin", "POST", { uid, username: name, role });
+  document.getElementById("new-admin-uid").value = "";
+  document.getElementById("new-admin-name").value = "";
+  loadAdmins();
+};
+
+window.removeAdmin = async (uid) => {
+  if (!confirm("Удалить администратора?")) return;
+  await api("/admin/removeadmin", "POST", { uid });
+  loadAdmins();
+};
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+function updateDashboard() {
+  const active  = allUsers.filter(u => u.data?.status === "active").length;
+  const expired = allUsers.filter(u => u.data?.status === "expired").length;
+  const banned  = allUsers.filter(u => u.data?.status === "banned").length;
+  const pending = parseInt(document.getElementById("badge-requests").textContent) || 0;
+
+  document.getElementById("stat-active").textContent  = active;
+  document.getElementById("stat-expired").textContent = expired;
+  document.getElementById("stat-banned").textContent  = banned;
+  document.getElementById("stat-pending").textContent = pending;
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+window.showPage = (page) => {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+  document.getElementById("page-" + page)?.classList.add("active");
+  document.querySelector(`[data-page="${page}"]`)?.classList.add("active");
+};
+
+window.closeModal = (id) => {
+  document.getElementById(id).classList.remove("open");
+};
+
+// ============================================================
+// HELPERS
+// ============================================================
+function formatDate(ts) {
+  if (!ts) return "—";
+  return new Date(parseInt(ts)).toLocaleDateString("ru", { day:"2-digit", month:"2-digit", year:"numeric" });
+}
+
+function statusLabel(s) {
+  return { active: "Активен", expired: "Истёк", banned: "Забанен", pending: "Ожидание" }[s] || s;
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+</script>
+</body>
+</html>
