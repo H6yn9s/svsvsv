@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Glassify — музыка сквозь стекло</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root{
+  --ink:#0a0c12;
+  --glass:rgba(255,255,255,.055);
+  --glass-strong:rgba(255,255,255,.09);
+  --stroke:rgba(255,255,255,.12);
+  --text:#eef1f7;
+  --muted:#8b93a7;
+  --accent:#7ef0d4;
+  --accent-deep:#2ec4a5;
+  --like:#ff6b9d;
+  --r-lg:26px;
+  --r-md:18px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  font-family:'Manrope',system-ui,sans-serif;
+  background:var(--ink);
+  color:var(--text);
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+/* ---------- фон: тёмные "авроры" за стеклом ---------- */
+.bg{position:fixed;inset:0;z-index:0;overflow:hidden}
+.blob{position:absolute;border-radius:50%;filter:blur(90px);opacity:.55}
+.blob.a{width:56vmax;height:56vmax;left:-18vmax;top:-20vmax;background:radial-gradient(circle,#123c3c,transparent 65%);animation:drift 26s ease-in-out infinite alternate}
+.blob.b{width:48vmax;height:48vmax;right:-14vmax;bottom:-16vmax;background:radial-gradient(circle,#241a3f,transparent 65%);animation:drift 32s ease-in-out infinite alternate-reverse}
+.blob.c{width:34vmax;height:34vmax;left:34%;top:46%;background:radial-gradient(circle,#0e2a45,transparent 65%);animation:drift 40s ease-in-out infinite alternate}
+@keyframes drift{from{transform:translate(0,0) scale(1)}to{transform:translate(6vmax,-4vmax) scale(1.12)}}
+@media (prefers-reduced-motion:reduce){.blob{animation:none}}
+.grain{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.85'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.6'/%3E%3C/svg%3E")}
+
+.glass{
+  background:var(--glass);
+  backdrop-filter:blur(26px) saturate(160%);
+  -webkit-backdrop-filter:blur(26px) saturate(160%);
+  border:1px solid var(--stroke);
+  border-radius:var(--r-lg);
+  box-shadow:0 18px 50px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.09);
+}
+
+button{font-family:inherit;color:inherit;background:none;border:none;cursor:pointer}
+button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:8px}
+input{font-family:inherit;color:var(--text)}
+::placeholder{color:var(--muted)}
+
+/* ---------- экран входа ---------- */
+#authScreen{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:20px}
+.auth-card{width:min(420px,100%);padding:36px 30px;text-align:center;position:relative;overflow:hidden}
+.auth-card::before{content:"";position:absolute;inset:-60% -20%;background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.08) 50%,transparent 60%);animation:sheen 6s ease-in-out infinite}
+@keyframes sheen{0%,60%{transform:translateX(-70%)}100%{transform:translateX(70%)}}
+@media (prefers-reduced-motion:reduce){.auth-card::before{animation:none}}
+.logo{font-family:'Unbounded';font-weight:800;font-size:30px;letter-spacing:-.5px}
+.logo em{font-style:normal;color:var(--accent)}
+.auth-sub{color:var(--muted);font-size:14px;margin:10px 0 26px}
+.qr-box{width:216px;height:216px;margin:0 auto;border-radius:var(--r-md);background:#fff;padding:12px;display:flex;align-items:center;justify-content:center;position:relative}
+.qr-box img,.qr-box canvas{width:100%!important;height:100%!important;border-radius:8px}
+.qr-hint{font-size:13px;color:var(--muted);margin-top:14px}
+.tg-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;margin-top:22px;padding:15px;border-radius:16px;font-weight:700;font-size:15px;background:linear-gradient(135deg,var(--accent),var(--accent-deep));color:#04140f;transition:transform .15s ease,box-shadow .15s ease}
+.tg-btn:hover{transform:translateY(-1px);box-shadow:0 10px 26px rgba(126,240,212,.28)}
+.auth-status{margin-top:16px;font-size:13px;min-height:18px;color:var(--muted)}
+.auth-status.ok{color:var(--accent)}
+.qr-expired{position:absolute;inset:12px;border-radius:8px;background:rgba(10,12,18,.9);color:var(--text);display:none;flex-direction:column;gap:10px;align-items:center;justify-content:center;font-size:14px}
+.qr-expired button{padding:9px 18px;border-radius:12px;background:var(--glass-strong);border:1px solid var(--stroke)}
+
+/* ---------- каркас приложения ---------- */
+#app{display:none;position:relative;z-index:1;height:100dvh;padding:16px;gap:16px}
+#app.on{display:flex}
+.rail{width:230px;flex-shrink:0;display:flex;flex-direction:column;padding:22px 16px;gap:6px}
+.rail .logo{font-size:21px;margin-bottom:18px;padding-left:8px}
+.nav-btn{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;color:var(--muted);font-weight:600;font-size:14.5px;transition:background .15s,color .15s;text-align:left}
+.nav-btn:hover{color:var(--text)}
+.nav-btn.active{background:var(--glass-strong);color:var(--text)}
+.nav-btn svg{width:20px;height:20px;flex-shrink:0}
+.rail .spacer{flex:1}
+.user-chip{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:var(--glass);border:1px solid var(--stroke)}
+.user-ava{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#5a5af0);display:flex;align-items:center;justify-content:center;font-weight:800;color:#04140f;font-size:15px}
+.user-chip .u-name{font-size:13.5px;font-weight:700;line-height:1.15}
+.user-chip .u-tag{font-size:11.5px;color:var(--muted)}
+.user-chip button{margin-left:auto;color:var(--muted);font-size:12px}
+.user-chip button:hover{color:var(--like)}
+
+.main{flex:1;display:flex;flex-direction:column;padding:26px 28px;overflow:hidden}
+.main-head{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+.main-head h1{font-family:'Unbounded';font-weight:600;font-size:22px}
+.search{flex:1;min-width:180px;max-width:420px;display:flex;align-items:center;gap:10px;padding:11px 16px;border-radius:16px;background:var(--glass);border:1px solid var(--stroke)}
+.search input{flex:1;background:none;border:none;font-size:14px}
+.add-btn{padding:11px 18px;border-radius:16px;font-weight:700;font-size:14px;background:var(--glass-strong);border:1px solid var(--stroke);transition:background .15s}
+.add-btn:hover{background:rgba(255,255,255,.14)}
+
+.tracks{flex:1;overflow-y:auto;padding-right:6px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.18) transparent}
+.track{display:flex;align-items:center;gap:14px;padding:12px 14px;border-radius:16px;transition:background .12s;cursor:pointer}
+.track:hover{background:var(--glass)}
+.track.playing{background:var(--glass-strong)}
+.t-cover{width:46px;height:46px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Unbounded';font-size:15px;font-weight:600;color:rgba(255,255,255,.85)}
+.t-meta{flex:1;min-width:0}
+.t-title{font-weight:700;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.track.playing .t-title{color:var(--accent)}
+.t-artist{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.t-like{color:var(--muted);padding:8px;transition:color .15s,transform .15s}
+.t-like:hover{transform:scale(1.15)}
+.t-like.on{color:var(--like)}
+.empty{margin:auto;text-align:center;color:var(--muted);font-size:14.5px;line-height:1.7;padding:40px 0}
+.empty b{color:var(--text)}
+
+/* ---------- плеер-капсула ---------- */
+.player{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;z-index:20;width:min(760px,calc(100% - 32px));padding:12px 18px;display:flex;align-items:center;gap:14px;border-radius:24px}
+.p-cover{width:44px;height:44px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Unbounded';font-size:14px;color:rgba(255,255,255,.85)}
+.p-meta{width:150px;min-width:0}
+.p-title{font-size:13.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.p-artist{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.p-ctrls{display:flex;align-items:center;gap:6px}
+.p-ctrls button{padding:8px;color:var(--text);border-radius:50%;transition:transform .12s}
+.p-ctrls button:hover{transform:scale(1.12)}
+.p-play{width:42px;height:42px;background:linear-gradient(135deg,var(--accent),var(--accent-deep));color:#04140f!important;display:flex;align-items:center;justify-content:center}
+.p-prog{flex:1;display:flex;align-items:center;gap:9px;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.bar{flex:1;height:5px;border-radius:3px;background:rgba(255,255,255,.12);position:relative;cursor:pointer}
+.bar-fill{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:var(--accent);width:0%}
+#viz{width:46px;height:26px;flex-shrink:0}
+.p-vol{width:74px;accent-color:var(--accent)}
+
+/* ---------- модалка загрузки ---------- */
+#uploadModal{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;background:rgba(5,6,10,.6);padding:20px}
+#uploadModal.on{display:flex}
+.modal-card{width:min(400px,100%);padding:28px}
+.modal-card h2{font-family:'Unbounded';font-weight:600;font-size:17px;margin-bottom:20px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px;font-weight:600}
+.field input[type=text]{width:100%;padding:12px 14px;border-radius:14px;background:var(--glass);border:1px solid var(--stroke);font-size:14px}
+.file-drop{width:100%;padding:20px;border-radius:14px;border:1.5px dashed var(--stroke);background:var(--glass);text-align:center;font-size:13px;color:var(--muted);cursor:pointer;transition:border-color .15s}
+.file-drop:hover{border-color:var(--accent)}
+.file-drop.has{color:var(--accent);border-color:var(--accent-deep)}
+.modal-actions{display:flex;gap:10px;margin-top:20px}
+.modal-actions .primary{flex:1;padding:13px;border-radius:14px;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--accent-deep));color:#04140f}
+.modal-actions .ghost{padding:13px 18px;border-radius:14px;background:var(--glass-strong);border:1px solid var(--stroke)}
+.modal-err{color:var(--like);font-size:12.5px;margin-top:10px;min-height:16px}
+
+/* ---------- мобильная версия ---------- */
+.tabbar{display:none}
+@media (max-width:760px){
+  #app{padding:12px;padding-bottom:0}
+  .rail{display:none}
+  .main{padding:20px 16px 170px}
+  .main-head h1{font-size:19px}
+  .player{bottom:76px;padding:10px 14px}
+  .p-meta{width:96px}
+  #viz,.p-vol{display:none}
+  .tabbar{display:flex;position:fixed;left:12px;right:12px;bottom:12px;z-index:21;border-radius:20px;padding:8px}
+  .tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 0;font-size:10.5px;font-weight:700;color:var(--muted);border-radius:14px}
+  .tabbar button.active{color:var(--accent)}
+  .tabbar svg{width:21px;height:21px}
+}
+</style>
+</head>
+<body>
+
+<div class="bg"><div class="blob a"></div><div class="blob b"></div><div class="blob c"></div></div>
+<div class="grain"></div>
+
+<!-- ЭКРАН ВХОДА -->
+<div id="authScreen">
+  <div class="auth-card glass">
+    <div class="logo">Glass<em>ify</em></div>
+    <p class="auth-sub">Вход через VK ID — без паролей</p>
+    <div class="qr-box">
+      <div id="qrCode"></div>
+      <div class="qr-expired" id="qrExpired">
+        <span>QR-код устарел</span>
+        <button onclick="startAuth()">Обновить</button>
+      </div>
+    </div>
+    <p class="qr-hint">Наведи камеру телефона на QR-код<br>и подтверди вход во ВКонтакте</p>
+    <a class="tg-btn" id="vkLink" href="#">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="currentColor"><path d="M12.8 16.9c-5.5 0-8.9-3.9-9-10.3h2.8c.1 4.8 2.3 6.8 4 7.2V6.6h2.6v4c1.7-.2 3.4-2.1 4-4h2.6c-.4 2.4-2.2 4.3-3.5 5 1.3.6 3.4 2.2 4.2 5.3h-2.9c-.6-2-2.2-3.5-4.4-3.7v3.7h-.4z"/></svg>
+      Войти через VK
+    </a>
+    <p class="auth-status" id="authStatus"></p>
+  </div>
+</div>
+
+<!-- ПРИЛОЖЕНИЕ -->
+<div id="app">
+  <aside class="rail glass">
+    <div class="logo">Glass<em>ify</em></div>
+    <button class="nav-btn active" data-view="home" onclick="setView('home')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5 12 3l9 7.5V21H3z"/></svg>Главная
+    </button>
+    <button class="nav-btn" data-view="liked" onclick="setView('liked')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 5.6a5 5 0 0 0-7.1 0L12 7.3l-1.7-1.7a5 5 0 1 0-7.1 7.1L12 21.5l8.8-8.8a5 5 0 0 0 0-7.1z"/></svg>Любимые
+    </button>
+    <div class="spacer"></div>
+    <div class="user-chip">
+      <div class="user-ava" id="userAva">?</div>
+      <div><div class="u-name" id="userName">—</div><div class="u-tag" id="userTag"></div></div>
+      <button onclick="logout()" title="Выйти">Выйти</button>
+    </div>
+  </aside>
+
+  <main class="main glass">
+    <div class="main-head">
+      <h1 id="viewTitle">Главная</h1>
+      <div class="search">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4-4"/></svg>
+        <input id="searchInput" type="text" placeholder="Поиск по трекам" oninput="render()">
+      </div>
+      <button class="add-btn" onclick="openUpload()">+ Загрузить трек</button>
+    </div>
+    <div class="tracks" id="trackList"></div>
+  </main>
+</div>
+
+<!-- ПЛЕЕР -->
+<div class="player glass" id="player" style="display:none">
+  <div class="p-cover" id="pCover">♪</div>
+  <div class="p-meta">
+    <div class="p-title" id="pTitle">—</div>
+    <div class="p-artist" id="pArtist">—</div>
+  </div>
+  <div class="p-ctrls">
+    <button onclick="prevTrack()" aria-label="Предыдущий"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h2v16H6zM20 4 9 12l11 8z"/></svg></button>
+    <button class="p-play" id="playBtn" onclick="togglePlay()" aria-label="Пуск/пауза"><svg id="playIcon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
+    <button onclick="nextTrack()" aria-label="Следующий"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M16 4h2v16h-2zM4 4l11 8-11 8z"/></svg></button>
+  </div>
+  <div class="p-prog">
+    <span id="tCur">0:00</span>
+    <div class="bar" id="seekBar"><div class="bar-fill" id="seekFill"></div></div>
+    <span id="tDur">0:00</span>
+  </div>
+  <canvas id="viz" width="92" height="52"></canvas>
+  <input class="p-vol" type="range" min="0" max="1" step="0.01" value="0.9" oninput="audio.volume=this.value" aria-label="Громкость">
+</div>
+
+<!-- НИЖНЯЯ НАВИГАЦИЯ (моб.) -->
+<nav class="tabbar glass">
+  <button class="active" data-view="home" onclick="setView('home')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5 12 3l9 7.5V21H3z"/></svg>Главная
+  </button>
+  <button data-view="liked" onclick="setView('liked')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 5.6a5 5 0 0 0-7.1 0L12 7.3l-1.7-1.7a5 5 0 1 0-7.1 7.1L12 21.5l8.8-8.8a5 5 0 0 0 0-7.1z"/></svg>Любимые
+  </button>
+  <button onclick="openUpload()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Трек
+  </button>
+  <button onclick="logout()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>Выйти
+  </button>
+</nav>
+
+<!-- МОДАЛКА ЗАГРУЗКИ -->
+<div id="uploadModal">
+  <div class="modal-card glass">
+    <h2>Загрузить трек</h2>
+    <div class="field"><label>Название</label><input type="text" id="upTitle" placeholder="Название трека"></div>
+    <div class="field"><label>Исполнитель</label><input type="text" id="upArtist" placeholder="Кто исполняет"></div>
+    <label class="file-drop" id="fileDrop">
+      Выбрать файл (mp3, ogg, wav, m4a)
+      <input type="file" id="upFile" accept=".mp3,.ogg,.wav,.m4a,audio/*" hidden onchange="fileChosen()">
+    </label>
+    <div class="modal-err" id="upErr"></div>
+    <div class="modal-actions">
+      <button class="ghost" onclick="closeUpload()">Отмена</button>
+      <button class="primary" id="upSubmit" onclick="submitUpload()">Загрузить</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ⚠️ Адрес бэкенда на PythonAnywhere — замени на свой
+const API = "https://heynos.pythonanywhere.com";
+let session = localStorage.getItem("glassify_session") || null;
+let tracks = [], view = "home", currentIdx = -1, pollTimer = null;
+const audio = new Audio();
+audio.crossOrigin = "anonymous";   // обязательно: иначе визуализатор не увидит кроссдоменный поток
+audio.volume = .9;
+
+const coverColors = ["#2ec4a5","#5a5af0","#e05b8f","#e0a35b","#4f8fe0","#8f5be0"];
+const coverFor = id => coverColors[id % coverColors.length];
+
+// ---------------- АВТОРИЗАЦИЯ ----------------
+async function startAuth(){
+  document.getElementById("qrExpired").style.display = "none";
+  document.getElementById("authStatus").textContent = "";
+  const r = await fetch(API + "/api/auth/qr", {method:"POST"});
+  const d = await r.json();
+  const box = document.getElementById("qrCode");
+  box.innerHTML = "";
+  new QRCode(box, {text: d.link, width: 192, height: 192, correctLevel: QRCode.CorrectLevel.M});
+  document.getElementById("vkLink").href = d.link;
+  clearInterval(pollTimer);
+  pollTimer = setInterval(() => checkAuth(d.token), 2000);
+}
+
+async function checkAuth(token){
+  const r = await fetch(API + "/api/auth/check?token=" + token);
+  const d = await r.json();
+  const st = document.getElementById("authStatus");
+  if(d.status === "confirmed"){
+    clearInterval(pollTimer);
+    session = d.session;
+    localStorage.setItem("glassify_session", session);
+    st.textContent = "Вход выполнен ✓";
+    st.classList.add("ok");
+    setTimeout(enterApp, 400);
+  } else if(d.status === "expired" || d.status === "not_found"){
+    clearInterval(pollTimer);
+    document.getElementById("qrExpired").style.display = "flex";
+  } else if(d.status === "failed"){
+    clearInterval(pollTimer);
+    st.textContent = "VK отклонил вход";
+    document.getElementById("qrExpired").style.display = "flex";
+  }
+}
+
+async function enterApp(){
+  const r = await fetch(API + "/api/me", {headers: authH()});
+  if(!r.ok){ localStorage.removeItem("glassify_session"); session = null; startAuth(); return; }
+  const u = await r.json();
+  document.getElementById("userName").textContent = u.name;
+  document.getElementById("userTag").textContent = u.vk || "";
+  const ava = document.getElementById("userAva");
+  if(u.avatar){
+    ava.style.background = `center/cover url("${u.avatar}")`;
+    ava.textContent = "";
+  } else {
+    ava.textContent = (u.name || "?")[0].toUpperCase();
+  }
+  document.getElementById("authScreen").style.display = "none";
+  document.getElementById("app").classList.add("on");
+  await loadTracks();
+}
+
+function authH(){ return {"Authorization": "Bearer " + session}; }
+
+async function logout(){
+  await fetch(API + "/api/auth/logout", {method:"POST", headers: authH()}).catch(()=>{});
+  localStorage.removeItem("glassify_session");
+  location.reload();
+}
+
+// ---------------- ТРЕКИ ----------------
+async function loadTracks(){
+  const r = await fetch(API + "/api/tracks", {headers: authH()});
+  tracks = r.ok ? await r.json() : [];
+  render();
+}
+
+function setView(v){
+  view = v;
+  document.querySelectorAll("[data-view]").forEach(b => b.classList.toggle("active", b.dataset.view === v));
+  document.getElementById("viewTitle").textContent = v === "home" ? "Главная" : "Любимые";
+  render();
+}
+
+function render(){
+  const q = document.getElementById("searchInput").value.trim().toLowerCase();
+  let list = tracks;
+  if(view === "liked") list = list.filter(t => t.liked);
+  if(q) list = list.filter(t => (t.title + " " + t.artist).toLowerCase().includes(q));
+  const el = document.getElementById("trackList");
+  if(!list.length){
+    el.innerHTML = `<div class="empty">${view === "liked"
+      ? "Тут пока пусто.<br>Нажми <b>♥</b> на треке — он появится здесь."
+      : "Треков пока нет.<br>Нажми <b>+ Загрузить трек</b> и добавь первый."}</div>`;
+    return;
+  }
+  el.innerHTML = list.map(t => `
+    <div class="track ${currentIdx >= 0 && tracks[currentIdx] && tracks[currentIdx].id === t.id ? "playing" : ""}" onclick="playById(${t.id})">
+      <div class="t-cover" style="background:linear-gradient(135deg,${coverFor(t.id)},rgba(255,255,255,.12))">${escapeHtml(t.title[0] || "♪").toUpperCase()}</div>
+      <div class="t-meta">
+        <div class="t-title">${escapeHtml(t.title)}</div>
+        <div class="t-artist">${escapeHtml(t.artist)}</div>
+      </div>
+      <button class="t-like ${t.liked ? "on" : ""}" onclick="event.stopPropagation();toggleLike(${t.id},this)" aria-label="Нравится">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="${t.liked ? "currentColor" : "none"}" stroke="currentColor" stroke-width="2"><path d="M20.8 5.6a5 5 0 0 0-7.1 0L12 7.3l-1.7-1.7a5 5 0 1 0-7.1 7.1L12 21.5l8.8-8.8a5 5 0 0 0 0-7.1z"/></svg>
+      </button>
+    </div>`).join("");
+}
+
+async function toggleLike(id, btn){
+  const r = await fetch(`${API}/api/tracks/${id}/like`, {method:"POST", headers: authH()});
+  const d = await r.json();
+  const t = tracks.find(t => t.id === id);
+  if(t) t.liked = d.liked;
+  render();
+}
+
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+// ---------------- ПЛЕЕР ----------------
+let audioCtx = null, analyser = null, vizData = null;
+
+function playById(id){
+  const idx = tracks.findIndex(t => t.id === id);
+  if(idx < 0) return;
+  currentIdx = idx;
+  const t = tracks[idx];
+  audio.src = API + t.url;
+  audio.play();
+  document.getElementById("player").style.display = "flex";
+  document.getElementById("pTitle").textContent = t.title;
+  document.getElementById("pArtist").textContent = t.artist;
+  const cov = document.getElementById("pCover");
+  cov.style.background = `linear-gradient(135deg,${coverFor(t.id)},rgba(255,255,255,.12))`;
+  cov.textContent = (t.title[0] || "♪").toUpperCase();
+  setupViz();
+  render();
+}
+
+function togglePlay(){ if(!audio.src) return; audio.paused ? audio.play() : audio.pause(); }
+function nextTrack(){ if(tracks.length) playById(tracks[(currentIdx + 1) % tracks.length].id); }
+function prevTrack(){ if(tracks.length) playById(tracks[(currentIdx - 1 + tracks.length) % tracks.length].id); }
+
+audio.addEventListener("ended", nextTrack);
+audio.addEventListener("play", () => setPlayIcon(true));
+audio.addEventListener("pause", () => setPlayIcon(false));
+function setPlayIcon(playing){
+  document.getElementById("playIcon").innerHTML = playing
+    ? '<path d="M7 5h4v14H7zM13 5h4v14h-4z"/>' : '<path d="M8 5v14l11-7z"/>';
+}
+
+audio.addEventListener("timeupdate", () => {
+  if(!audio.duration) return;
+  document.getElementById("seekFill").style.width = (audio.currentTime / audio.duration * 100) + "%";
+  document.getElementById("tCur").textContent = fmt(audio.currentTime);
+  document.getElementById("tDur").textContent = fmt(audio.duration);
+});
+document.getElementById("seekBar").addEventListener("click", e => {
+  if(!audio.duration) return;
+  const r = e.currentTarget.getBoundingClientRect();
+  audio.currentTime = (e.clientX - r.left) / r.width * audio.duration;
+});
+const fmt = s => `${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,"0")}`;
+
+function setupViz(){
+  try{
+    if(!audioCtx){
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const src = audioCtx.createMediaElementSource(audio);
+      analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 64;
+      src.connect(analyser); analyser.connect(audioCtx.destination);
+      vizData = new Uint8Array(analyser.frequencyBinCount);
+      drawViz();
+    }
+    if(audioCtx.state === "suspended") audioCtx.resume();
+  }catch(e){}
+}
+function drawViz(){
+  requestAnimationFrame(drawViz);
+  const c = document.getElementById("viz"), ctx = c.getContext("2d");
+  ctx.clearRect(0,0,c.width,c.height);
+  if(!analyser || audio.paused) return;
+  analyser.getByteFrequencyData(vizData);
+  const bars = 7, w = c.width / bars;
+  for(let i = 0; i < bars; i++){
+    const v = vizData[i * 3] / 255;
+    const h = Math.max(4, v * c.height);
+    ctx.fillStyle = "rgba(126,240,212," + (0.35 + v * 0.65) + ")";
+    ctx.beginPath();
+    ctx.roundRect(i * w + 2, c.height - h, w - 5, h, 3);
+    ctx.fill();
+  }
+}
+
+// ---------------- ЗАГРУЗКА ТРЕКОВ ----------------
+function openUpload(){ document.getElementById("uploadModal").classList.add("on"); }
+function closeUpload(){
+  document.getElementById("uploadModal").classList.remove("on");
+  document.getElementById("upErr").textContent = "";
+}
+function fileChosen(){
+  const f = document.getElementById("upFile").files[0];
+  const drop = document.getElementById("fileDrop");
+  drop.classList.toggle("has", !!f);
+  drop.childNodes[0].textContent = f ? f.name : "Выбрать файл (mp3, ogg, wav, m4a)";
+}
+async function submitUpload(){
+  const title = document.getElementById("upTitle").value.trim();
+  const artist = document.getElementById("upArtist").value.trim();
+  const f = document.getElementById("upFile").files[0];
+  const err = document.getElementById("upErr");
+  if(!title || !f){ err.textContent = "Укажи название и выбери файл"; return; }
+  const btn = document.getElementById("upSubmit");
+  btn.disabled = true; btn.textContent = "Загрузка…";
+  const fd = new FormData();
+  fd.append("file", f); fd.append("title", title); fd.append("artist", artist);
+  const r = await fetch(API + "/api/tracks/upload", {method:"POST", headers: authH(), body: fd});
+  btn.disabled = false; btn.textContent = "Загрузить";
+  if(!r.ok){ const d = await r.json().catch(()=>({})); err.textContent = d.error || "Не удалось загрузить"; return; }
+  document.getElementById("upTitle").value = "";
+  document.getElementById("upArtist").value = "";
+  document.getElementById("upFile").value = "";
+  fileChosen();
+  closeUpload();
+  await loadTracks();
+}
+
+// ---------------- СТАРТ ----------------
+(async function boot(){
+  // Возврат с VK на том же устройстве: ?login=<токен>
+  const back = new URLSearchParams(location.search).get("login");
+  if(back){
+    history.replaceState({}, "", location.pathname);
+    const r = await fetch(API + "/api/auth/check?token=" + back);
+    const d = await r.json();
+    if(d.status === "confirmed"){
+      session = d.session;
+      localStorage.setItem("glassify_session", session);
+      return enterApp();
+    }
+  }
+  if(session) enterApp(); else startAuth();
+})();
+</script>
+</body>
+</html>
